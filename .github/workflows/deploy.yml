@@ -15,7 +15,13 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        node: [ 22 ]
+
     env:
       NUXT_PUBLIC_SITE_URL: https://bitrix24.github.io
       NUXT_PUBLIC_BASE_URL: /templates-dashboard
@@ -25,12 +31,12 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
       - name: Install node
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - name: Setup Pages
