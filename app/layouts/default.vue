@@ -171,11 +171,10 @@ onMounted(async () => {
 
 <template>
   <B24DashboardGroup unit="px" storage="local">
-    <!-- @todo: drawer -> modal -->
     <B24DashboardSidebar
       id="default"
       v-model:open="open"
-      mode="drawer"
+      mode="slideover"
       collapsible
       resizable
       class="border-e-1"
