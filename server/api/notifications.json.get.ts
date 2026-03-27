@@ -1,7 +1,7 @@
 // import { sub } from 'date-fns'
 
 // @todo add something random
-const notifications = [
+const notificationsJsonGet = [
   {
     id: 1,
     unread: true,
@@ -315,5 +315,5 @@ const notifications = [
 ]
 
 export default eventHandler(async () => {
-  return notifications
+  return notificationsJsonGet
 })
