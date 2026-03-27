@@ -32,7 +32,7 @@ const _useDealStats = () => {
 
   const range = shallowRef<Range>({
     start: sub(new Date(), { days: 7 }),
-    end: new Date(),
+    end: new Date()
   })
 
   const period = ref<Period>('daily')
@@ -44,7 +44,7 @@ const _useDealStats = () => {
 
   // ------------------------------------------------------------------------
   // Bitrix24
-  //-----------------------------------------------------------------------
+  // -----------------------------------------------------------------------
   const b24Instance = useB24()
   const $logger = b24Instance.buildLogger('useDealStats')
   const $b24 = b24Instance.get() as B24Frame
@@ -180,7 +180,7 @@ const _useDealStats = () => {
         range.value.end,
         defaultCurrency.value,
         (current: PartialStats) => {
-          (['customers', 'conversions', 'orders'] as const).forEach(k => {
+          (['customers', 'conversions', 'orders'] as const).forEach((k) => {
             const stat = statMap.get(k)!
             stat.value = current[k]
             stat.formatValue = String(current[k])
@@ -211,7 +211,7 @@ const _useDealStats = () => {
         previousEnd,
         defaultCurrency.value,
         (prev: PartialStats) => {
-          (['customers', 'conversions', 'orders']  as const).forEach(k => {
+          (['customers', 'conversions', 'orders'] as const).forEach((k) => {
             if (!statMap.has(k)) {
               return
             }
@@ -248,7 +248,7 @@ const _useDealStats = () => {
       // Final cleanup of empty local default currency
       if (currencyList.value.length > 0) {
         const keyForDefaultCurrency = `revenue-${defaultCurrency.value}`
-        const local = statMap.get(keyForDefaultCurrency);
+        const local = statMap.get(keyForDefaultCurrency)
         if (local && local.value === 0) {
           statMap.delete(keyForDefaultCurrency)
         }

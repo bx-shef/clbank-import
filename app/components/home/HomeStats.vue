@@ -39,9 +39,9 @@ const { statsData } = useDealStats()
 
         <B24Badge
           v-if="stat.variation !== null"
-          :icon="stat.variation > 0 ? TrendUpIcon : ( stat.variation === 0 ? undefined : TrendDownIcon)"
+          :icon="stat.variation > 0 ? TrendUpIcon : (stat.variation === 0 ? undefined : TrendDownIcon)"
           size="md"
-          :color="stat.variation > 0 ? 'air-primary-success' : ( stat.variation === 0 ? 'air-tertiary' : 'air-primary-alert')"
+          :color="stat.variation > 0 ? 'air-primary-success' : (stat.variation === 0 ? 'air-tertiary' : 'air-primary-alert')"
         >
           {{ stat.variation > 0 ? '+' : '' }}{{ stat.variation }}%
         </B24Badge>

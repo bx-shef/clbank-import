@@ -5,19 +5,20 @@ const extraAllowedHosts = (process?.env.NUXT_ALLOWED_HOSTS?.split(',').map((s: s
 const prodUrl = process?.env.NUXT_PUBLIC_SITE_URL ?? ''
 
 export default defineNuxtConfig({
+
   modules: [
     '@nuxt/eslint',
     '@bitrix24/b24ui-nuxt',
     '@bitrix24/b24jssdk-nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/i18n'
-  ],
-
-  devtools: { enabled: false },
+  ], devtools: { enabled: false },
 
   app: {
     rootAttrs: { 'data-vaul-drawer-wrapper': '' }
   },
+
+  css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
     /**
@@ -28,8 +29,6 @@ export default defineNuxtConfig({
       siteUrl: prodUrl
     }
   },
-
-  css: ['~/assets/css/main.css'],
 
   routeRules: {
     '/api/**': {

@@ -5,6 +5,12 @@ export type UserStatus = 'subscribed' | 'unsubscribed' | 'bounced'
 export type SaleStatus = 'success' | 'failed' | 'processing'
 export type Semantic = 'P' | 'S' | 'F'
 
+export interface IStep {
+  action: () => Promise<void>
+  caption?: string
+  data?: Record<string, unknown>
+}
+
 export interface User {
   id: number
   name: string

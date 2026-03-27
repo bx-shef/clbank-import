@@ -76,7 +76,7 @@ export async function fetchDealsInRange(
       filter: {
         '>=closedate': Text.toB24Format(from),
         '<=closedate': Text.toB24Format(to),
-        '=closed': true,
+        '=closed': true
         // You can pick one currency, but the real thrill begins when there are many.
         // '=currencyId': defaultCurrency
       },
@@ -90,75 +90,70 @@ export async function fetchDealsInRange(
         'opportunity',
         'currencyId',
         'contactId',
-        'companyId',
-      ],
+        'companyId'
+      ]
     },
     idKey: 'id',
     customKeyForResult: 'items',
-    requestId,
+    requestId
   })
+  for await (const chunk of generator) {
+    chunk.forEach((row) => {
+      // Unique Customers
+      if (row.contactId > 0) {
+        uniqueCustomers.add(`contact_${row.contactId}`)
+      } else if (row.companyId > 0) {
+        uniqueCustomers.add(`company_${row.companyId}`)
+      } else {
+        uniqueCustomers.add('empty')
+      }
 
-  try {
-    for await (const chunk of generator) {
-      chunk.forEach((row) => {
-        // Unique Customers
-        if (row.contactId > 0) {
-          uniqueCustomers.add(`contact_${row.contactId}`)
-        } else if (row.companyId > 0) {
-          uniqueCustomers.add(`company_${row.companyId}`)
-        } else {
-          uniqueCustomers.add('empty')
-        }
+      // Successful transactions (semantics S)
+      if (row.stageSemanticId === 'S') {
+        successfulDeals++
+        const currency = row.currencyId || defaultCurrency
+        totalSuccessfulAmountByCurrency[currency]
+          = (totalSuccessfulAmountByCurrency[currency] || 0) + row.opportunity
+      }
 
-        // Successful transactions (semantics S)
-        if (row.stageSemanticId === 'S') {
-          successfulDeals++
-          const currency = row.currencyId || defaultCurrency
-          totalSuccessfulAmountByCurrency[currency] =
-            (totalSuccessfulAmountByCurrency[currency] || 0) + row.opportunity
-        }
-
-        // Преобразование в формат Sale
-        rows.push({
-          id: row.id,
-          begindate: Text.toDateTime(row.begindate).toJSDate().toISOString(),
-          closedate:
+      // Преобразование в формат Sale
+      rows.push({
+        id: row.id,
+        begindate: Text.toDateTime(row.begindate).toJSDate().toISOString(),
+        closedate:
             row.stageSemanticId === 'P'
               ? null
               : Text.toDateTime(row.closedate).toJSDate().toISOString(),
-          stageSemanticId: row.stageSemanticId,
-          status: mapStatus[row.stageSemanticId] ?? 'processing',
-          title: row.title,
-          amount: row.opportunity,
-          currencyId: row.currencyId,
-          editPath: b24.slider.getUrl(`/crm/deal/details/${row.id}/`).toString(),
-        })
+        stageSemanticId: row.stageSemanticId,
+        status: mapStatus[row.stageSemanticId] ?? 'processing',
+        title: row.title,
+        amount: row.opportunity,
+        currencyId: row.currencyId,
+        editPath: b24.slider.getUrl(`/crm/deal/details/${row.id}/`).toString()
       })
+    })
 
-      // Call the callback with the current aggregated values
-      if (cb) {
-        const revenueEntries = Object.entries(totalSuccessfulAmountByCurrency)
-        const revenueValue: { amount: number, currency: string }[] = revenueEntries.length
-          ? revenueEntries.map(([currency, amount]) => ({ amount, currency }))
-          : [{ amount: 0, currency: defaultCurrency }]
+    // Call the callback with the current aggregated values
+    if (cb) {
+      const revenueEntries = Object.entries(totalSuccessfulAmountByCurrency)
+      const revenueValue: { amount: number, currency: string }[] = revenueEntries.length
+        ? revenueEntries.map(([currency, amount]) => ({ amount, currency }))
+        : [{ amount: 0, currency: defaultCurrency }]
 
-        cb({
-          customers: uniqueCustomers.size,
-          conversions: successfulDeals,
-          orders: rows.length,
-          revenueValue
-        } as PartialStats)
-      }
+      cb({
+        customers: uniqueCustomers.size,
+        conversions: successfulDeals,
+        orders: rows.length,
+        revenueValue
+      } as PartialStats)
     }
+  }
 
-    return {
-      rows,
-      totalSuccessfulAmountByCurrency,
-      uniqueCustomers,
-      successfulDeals,
-    }
-  } catch (error) {
-    throw error
+  return {
+    rows,
+    totalSuccessfulAmountByCurrency,
+    uniqueCustomers,
+    successfulDeals
   }
 }
 

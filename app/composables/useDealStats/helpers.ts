@@ -16,7 +16,7 @@ export function getDatesByPeriod(range: Range, period: Period): Date[] {
   return ({
     daily: eachDayOfInterval,
     weekly: eachWeekOfInterval,
-    monthly: eachMonthOfInterval,
+    monthly: eachMonthOfInterval
   } as Record<Period, typeof eachDayOfInterval>)[period](range)
 }
 
@@ -103,10 +103,10 @@ export function groupSalesByDate(
  */
 export function buildChartData(sales: Sale[], dates: Date[]): DataRecord[] {
   // Filter out only successful transactions (by semantics)
-  const successfulSales = sales.filter((s) => s.stageSemanticId === 'S')
+  const successfulSales = sales.filter(s => s.stageSemanticId === 'S')
 
   // Get an array of date timestamps
-  const timestamps = dates.map((d) => d.getTime())
+  const timestamps = dates.map(d => d.getTime())
 
   // Group transactions by dates
   const groups = groupSalesByDate(successfulSales, timestamps)

@@ -68,7 +68,9 @@ defineShortcuts({
             <B24Chip v-if="mail.unread" />
           </div>
 
-          <ProseP small accent="less" class="mb-0">{{ isToday(new Date(mail.date)) ? format(new Date(mail.date), 'HH:mm') : format(new Date(mail.date), 'dd MMM') }}</ProseP>
+          <ProseP small accent="less" class="mb-0">
+            {{ isToday(new Date(mail.date)) ? format(new Date(mail.date), 'HH:mm') : format(new Date(mail.date), 'dd MMM') }}
+          </ProseP>
         </div>
         <ProseP class="mb-0 truncate" :class="[mail.unread ? 'font-semibold text-label' : 'text-legend']">
           {{ mail.subject }}

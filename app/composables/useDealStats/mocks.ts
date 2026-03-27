@@ -22,7 +22,7 @@ export function generateMockStats(locale: string, currency: string): Stat[] {
       minValue: 400,
       maxValue: 1000,
       minVariation: -15,
-      maxVariation: 25,
+      maxVariation: 25
     },
     {
       title: 'Conversions',
@@ -30,7 +30,7 @@ export function generateMockStats(locale: string, currency: string): Stat[] {
       minValue: 1000,
       maxValue: 2000,
       minVariation: -10,
-      maxVariation: 20,
+      maxVariation: 20
     },
     {
       title: 'Orders',
@@ -38,7 +38,7 @@ export function generateMockStats(locale: string, currency: string): Stat[] {
       minValue: 100,
       maxValue: 300,
       minVariation: -5,
-      maxVariation: 15,
+      maxVariation: 15
     },
     {
       title: 'Revenue',
@@ -47,7 +47,7 @@ export function generateMockStats(locale: string, currency: string): Stat[] {
       maxValue: 500000,
       minVariation: -20,
       maxVariation: 30,
-      formatter: (val: number) => formatCurrency(val, currency, locale),
+      formatter: (val: number) => formatCurrency(val, currency, locale)
     }
   ]
 
@@ -61,7 +61,7 @@ export function generateMockStats(locale: string, currency: string): Stat[] {
       value: value,
       formatValue: stat.formatter ? stat.formatter(value) : `${value}`,
       // The first element (Customers) has variation = null
-      variation: index === 0 ? null : variation,
+      variation: index === 0 ? null : variation
     }
   })
 }
@@ -84,10 +84,10 @@ export function generateMockChart(
   const min = 1_000
   const max = 10_000
 
-  return dates.map((date) => ({
+  return dates.map(date => ({
     date,
     amount: {
-      [currency]: Math.floor(Math.random() * (max - min + 1)) + min,
+      [currency]: Math.floor(Math.random() * (max - min + 1)) + min
     }
   }))
 }

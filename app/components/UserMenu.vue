@@ -2,9 +2,7 @@
 import type { B24Frame } from '@bitrix24/b24jssdk'
 import type { DropdownMenuItem } from '@bitrix24/b24ui-nuxt'
 import { computed } from 'vue'
-import { useColorMode } from '#imports'
 import { useB24 } from '../composables/useB24'
-import { useDashboard } from '../composables/useDashboard'
 import { TypeSpecificUrl } from '@bitrix24/b24jssdk'
 import Expand1Icon from '@bitrix24/b24icons-vue/actions/Expand1Icon'
 import PersonSettingsIcon from '@bitrix24/b24icons-vue/outline/PersonSettingsIcon'
@@ -21,7 +19,6 @@ defineProps<{
 
 const toast = useToast()
 const colorMode = useColorMode()
-const appConfig = useAppConfig()
 const b24Instance = useB24()
 const { isBitrixMobile } = useDevice()
 
@@ -35,7 +32,7 @@ const user = computed(() => {
     name: 'Bitrix24',
     avatar: { src: 'https://github.com/bitrix24.png', alt: 'Bitrix24' }
   }
-  if(!isUseB24.value) {
+  if (!isUseB24.value) {
     return def
   }
 
@@ -99,7 +96,7 @@ const items = computed<DropdownMenuItem[]>(() => [
     label: 'Profile',
     icon: PersonSettingsIcon,
     onSelect() {
-      if(isWeCanMakeOperationForCurrentUser()) {
+      if (isWeCanMakeOperationForCurrentUser()) {
         $b24.slider.openPath(
           $b24.slider.getUrl(`/company/personal/user/${user.value.id}/`),
           950
@@ -111,7 +108,7 @@ const items = computed<DropdownMenuItem[]>(() => [
     label: 'Billing',
     icon: CreditDebitCardIcon,
     onSelect() {
-      if(isWeCanMakeOperationForCurrentUser()) {
+      if (isWeCanMakeOperationForCurrentUser()) {
         if (b24Helper?.isSelfHosted) {
           $b24.slider.openPath(
             $b24.slider.getUrl(`/bitrix/admin/update_system.php`),
@@ -130,7 +127,7 @@ const items = computed<DropdownMenuItem[]>(() => [
     label: 'Settings',
     icon: SettingsIcon,
     onSelect() {
-      if(isWeCanMakeOperationForCurrentUser()) {
+      if (isWeCanMakeOperationForCurrentUser()) {
         $b24.slider.openPath(
           $b24.slider.getUrl(b24Helper?.b24SpecificUrl[TypeSpecificUrl.MainSettings]),
           950
@@ -229,7 +226,7 @@ const items = computed<DropdownMenuItem[]>(() => [
     <B24Button
       v-bind="{
         ...user,
-        label: collapsed ? undefined : user?.name,
+        label: collapsed ? undefined : user?.name
       }"
       color="air-tertiary"
       block

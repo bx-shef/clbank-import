@@ -95,26 +95,26 @@ function getHeader(column: Column<User>, label: string) {
   return h(
     B24Button,
     {
-      color: 'air-tertiary-no-accent',
+      'color': 'air-tertiary-no-accent',
       label,
-      size: 'sm',
-      class: 'group -mx-2.5 [--ui-btn-height:20px]',
+      'size': 'sm',
+      'class': 'group -mx-2.5 [--ui-btn-height:20px]',
       'aria-label': `Sort by ${isSorted === 'asc' ? 'descending' : 'ascending'}`,
-      onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+      'onClick': () => column.toggleSorting(column.getIsSorted() === 'asc')
     },
     {
       trailing: () => isSorted
         ? h((isSorted === 'asc' ? ChevronTopLIcon : ChevronDownLIcon), {
-          class: {
-            'text-(--ui-btn-color) shrink-0 size-[13px]': true,
-            'hidden group-hover:inline-flex': !isSorted
-          }
-        })
+            class: {
+              'text-(--ui-btn-color) shrink-0 size-[13px]': true,
+              'hidden group-hover:inline-flex': !isSorted
+            }
+          })
         : h('div', {
-          class: {
-            'size-[13px]': true
-          }
-        })
+            class: {
+              'size-[13px]': true
+            }
+          })
     }
   )
 }
@@ -162,15 +162,15 @@ const columns: TableColumn<User>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       return h(B24DropdownMenu, {
-          'content': {
-            align: 'center',
-            side: 'right',
-            sideOffset: -2
-          },
-          'arrow': true,
-          'items': getRowActions(row),
-          'aria-label': 'Actions dropdown'
-        }, () => h(B24Button, {
+        'content': {
+          align: 'center',
+          side: 'right',
+          sideOffset: -2
+        },
+        'arrow': true,
+        'items': getRowActions(row),
+        'aria-label': 'Actions dropdown'
+      }, () => h(B24Button, {
         'icon': MenuIcon,
         'color': 'air-tertiary-no-accent',
         'size': 'sm',
@@ -200,7 +200,7 @@ const columns: TableColumn<User>[] = [
   },
   {
     accessorKey: 'email',
-    header: ({ column }) => getHeader(column, 'Email'),
+    header: ({ column }) => getHeader(column, 'Email')
   },
   {
     accessorKey: 'status',

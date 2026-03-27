@@ -61,7 +61,7 @@ onMounted(async () => {
     if (b24Instance.isInit()) {
       const targetCode = (b24Instance.get() as B24Frame).getLang()
       if (localesI18n.value.filter(i => i.code === targetCode).length > 0) {
-        await setLocale(targetCode as any)
+        await setLocale(targetCode as never)
       } else {
         console.error(`[i18n] Failed to load messages for locale: ${targetCode}`)
       }

@@ -71,9 +71,7 @@ const validate = (state: Partial<PasswordSchema>): FormError[] => {
     description="No longer want to use our service? You can delete your account here. This action is not reversible. All information related to this account will be deleted permanently."
     variant="tinted-alert"
     class="base-mode"
-    :b24ui="{
-      root: 'rounded-none sm:rounded-3xl',
-    }"
+    :b24ui="{ root: 'rounded-none sm:rounded-3xl' }"
   >
     <template #footer>
       <B24Button label="Delete account" color="air-primary-alert" />

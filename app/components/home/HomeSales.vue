@@ -33,7 +33,7 @@ const columns: TableColumn<Sale>[] = [
           color: 'air-tertiary-no-accent',
           label: 'Close date',
           size: 'sm',
-          class: '-mx-2.5 [--ui-btn-height:20px]',
+          class: '-mx-2.5 [--ui-btn-height:20px]'
         },
         {
           trailing: () =>
@@ -79,7 +79,7 @@ const columns: TableColumn<Sale>[] = [
         onClick: (e: Event) => {
           e.preventDefault()
           openDeal(row.original)
-        },
+        }
       }, {
         default: () => row.original.title
       })

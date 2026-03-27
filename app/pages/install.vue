@@ -203,7 +203,7 @@ const steps = ref<Record<string, IStep>>({
     action: async () => {
       const authData = $b24.auth.getAuthData()
 
-      if(authData === false) {
+      if (authData === false) {
         throw new Error('Some problem with auth. See App logic')
       }
 
@@ -262,7 +262,7 @@ async function makeInit(): Promise<void> {
         LICENSE: string
         LICENSE_FAMILY: string
         INSTALLED: boolean
-      },
+      }
       profile: {
         ID: number
         ADMIN: boolean
@@ -362,7 +362,7 @@ onMounted(async () => {
     :b24ui="{ body: 'p-4 sm:pt-4 items-center justify-center gap-1 sm:gap-1 scrollbar-transparent' }"
   >
     <template #body>
-      <Logo
+      <AppLogo
         class="size-[208px]"
         :class="[stepCode === 'finish' ? 'text-(--ui-color-accent-main-success)' : 'text-(--ui-color-accent-soft-green-1)']"
       />

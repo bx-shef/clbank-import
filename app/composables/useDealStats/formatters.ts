@@ -31,8 +31,8 @@ export function formatCurrency(value: number, currencyId: string, locale: string
   return value.toLocaleString(locale, {
     style: 'currency',
     currency: currencyId,
-    maximumFractionDigits: 0,
-  });
+    maximumFractionDigits: 0
+  })
 }
 
 /**
@@ -55,9 +55,9 @@ export function formatDateByPeriod(
   const optionsMap: Record<typeof period, Intl.DateTimeFormatOptions> = {
     daily: { day: 'numeric', month: 'short' },
     weekly: { day: 'numeric', month: 'short' },
-    monthly: { year: 'numeric', month: 'short' },
-  };
-  return date.toLocaleString(locale, optionsMap[period]);
+    monthly: { year: 'numeric', month: 'short' }
+  }
+  return date.toLocaleString(locale, optionsMap[period])
 }
 
 /**
@@ -73,8 +73,8 @@ export function formatDateByPeriod(
 export function formatDateRange(date: Date, locale: string): string {
   return date.toLocaleString(locale, {
     dateStyle: 'short',
-    hour12: false,
-  });
+    hour12: false
+  })
 }
 
 /**
@@ -93,6 +93,6 @@ export function formatDateTimeShort(date: Date, locale: string): string {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
-  });
+    hour12: false
+  })
 }
