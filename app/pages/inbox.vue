@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Mail } from '../types'
-import { computed, ref, watch } from 'vue'
-import { useFetch, useBreakpoints, breakpointsTailwind } from '@vueuse/core'
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core'
 import MailOpenIcon from '@bitrix24/b24icons-vue/outline/MailOpenIcon'
 
 const tabItems = [{
