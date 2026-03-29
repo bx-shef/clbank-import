@@ -13,8 +13,7 @@ const tabItems = [{
 }]
 const selectedTab = ref('all')
 
-// @todo: change mock
-const { data: mails } = useFetch('https://dashboard-template.nuxt.dev/api/mails', { initialData: [] }).json<Mail[]>()
+const { data: mails } = useFetch('/api/mails', { initialData: [] }).json<Mail[]>()
 
 // Filter mails based on the selected tab
 const filteredMails = computed(() => {

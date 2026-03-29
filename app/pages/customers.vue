@@ -33,8 +33,7 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 3: true })
 
-// @todo: change mock
-const { data, isFetching } = useFetch('https://dashboard-template.nuxt.dev/api/customers', { initialData: [] }).json<User[]>()
+const { data, isFetching } = useFetch('/api/customers', { initialData: [] }).json<User[]>()
 
 function onSelect(_: Event, row: TableRow<User>) {
   row.toggleSelected(!row.getIsSelected())
