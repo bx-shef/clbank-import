@@ -12,11 +12,11 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(vue@3.5.30(typescript@6.0.2))
       '@bitrix24/b24jssdk':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
       '@bitrix24/b24jssdk-nuxt':
-        specifier: ^1.0.4
-        version: 1.0.4(magicast@0.5.2)
+        specifier: ^1.0.5
+        version: 1.0.5(magicast@0.5.2)
       '@bitrix24/b24ui-nuxt':
         specifier: ^2.5.2
         version: 2.5.2(@tiptap/extensions@3.20.4(@tiptap/core@3.20.4(@tiptap/pm@3.20.4))(@tiptap/pm@3.20.4))(@tiptap/y-tiptap@3.0.2(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.7)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30))(axios@1.13.6)(change-case@5.4.4)(embla-carousel@8.6.0)(magicast@0.5.2)(tailwindcss@4.2.2)(typescript@6.0.2)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))(vue-router@4.6.4(vue@3.5.30(typescript@6.0.2)))(vue@3.5.30(typescript@6.0.2))(yjs@13.6.30)(zod@4.3.6)
@@ -244,11 +244,11 @@ packages:
     peerDependencies:
       vue: ^3.5.24
 
-  '@bitrix24/b24jssdk-nuxt@1.0.4':
-    resolution: {integrity: sha512-nVCschvGM4LZCGVc02bFT3XJZahIGrjyT2il4ADdNRuJeCRyjLEWBkersUbD6eyh6BMyf4qbvznk2LR2mjRmaw==}
+  '@bitrix24/b24jssdk-nuxt@1.0.5':
+    resolution: {integrity: sha512-pAD54dqj236PZVoOkTlZ3GVGmgWvnnJIAL1ba7E1FglJ9PcvtCYZmuEo+N/hOXbXGwx2a3nadPj9sintyy3xzw==}
 
-  '@bitrix24/b24jssdk@1.0.4':
-    resolution: {integrity: sha512-iBxpOlu1OIxOfzLh9sV32YHRWATxKADNK+6Ed7pkiCkw7YmPCZ7Mi6292GqqLYdjAbyz+v5QNxHLjbDj5uEDRQ==}
+  '@bitrix24/b24jssdk@1.0.5':
+    resolution: {integrity: sha512-rbgijvAF7aaqUxr3DQjSqj7sYLvZ7MMM084fbdyjX5omgU/X7EGZFZgccQPWm3HORkDt2KzOCQKNVAu512Q06Q==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
 
   '@bitrix24/b24ui-nuxt@2.5.2':
@@ -6363,9 +6363,9 @@ snapshots:
     dependencies:
       vue: 3.5.30(typescript@6.0.2)
 
-  '@bitrix24/b24jssdk-nuxt@1.0.4(magicast@0.5.2)':
+  '@bitrix24/b24jssdk-nuxt@1.0.5(magicast@0.5.2)':
     dependencies:
-      '@bitrix24/b24jssdk': 1.0.4
+      '@bitrix24/b24jssdk': 1.0.5
       '@nuxt/kit': 4.4.2(magicast@0.5.2)
       axios: 1.13.6
       luxon: 3.7.2
@@ -6374,7 +6374,7 @@ snapshots:
       - debug
       - magicast
 
-  '@bitrix24/b24jssdk@1.0.4':
+  '@bitrix24/b24jssdk@1.0.5':
     dependencies:
       '@types/luxon': 3.7.1
       axios: 1.13.6
