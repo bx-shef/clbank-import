@@ -30,11 +30,15 @@ const _useDealStats = () => {
   const { locale } = useI18n()
 
   const range = shallowRef<Range>({
-    start: sub(new Date(), { days: 7 }),
+    start: sub(new Date(), { months: 6 }),
     end: new Date()
   })
 
-  const period = ref<Period>('daily')
+  /**
+   * @see periodsData
+   * @see app/components/home/HomeDateRangePicker.vue:14
+   */
+  const period = ref<Period>('weekly')
   const stats = ref<Stat[]>([])
   const chart = ref<DataRecord[]>([])
   const sales = ref<Sale[]>([])
