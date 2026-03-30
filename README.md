@@ -59,13 +59,14 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 A browser-based application for Bitrix24.
 
 ## Required Scopes
+
 The following permissions must be enabled in the application settings:
 * `crm` — access to CRM entities.
 * `user_brief` — access to basic user profile data.
 
 ## Configuration
-When registering the application in the Bitrix24 Partner Portal or as a local app, use the following endpoints:
 
+When registering the application in the Bitrix24 Partner Portal or as a local app, use the following endpoints:
 
 | Parameter | URL |
 | :--- | :--- |
@@ -73,8 +74,9 @@ When registering the application in the Bitrix24 Partner Portal or as a local ap
 | **Installation URL** | `https://your-app.example.com/install` |
 
 ## Getting Started
-1. Open your **Bitrix24 account**.
-2. Go to **Applications** -> **Add Application**.
+
+1. Open your **Bitrix24**.
+2. Go to **Applications** -> **Add Application**
 3. Select **Local Application**
 4. Fill in the URLs provided above and check the required **Scopes**.
 5. Click **Save** and open the app.
