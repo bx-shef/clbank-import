@@ -1,4 +1,3 @@
-import { contentLocales } from './i18n/i18n'
 
 const pagesService = [
   '/api/customers',
@@ -18,8 +17,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@bitrix24/b24ui-nuxt',
     '@bitrix24/b24jssdk-nuxt',
-    '@vueuse/nuxt',
-    '@nuxtjs/i18n'
+    '@vueuse/nuxt'
   ], devtools: { enabled: false },
 
   app: {
@@ -72,11 +70,4 @@ export default defineNuxtConfig({
       }
     }
   },
-  i18n: {
-    detectBrowserLanguage: false,
-    strategy: 'no_prefix',
-    langDir: 'locales',
-    locales: contentLocales,
-    defaultLocale: 'en'
-  }
 })

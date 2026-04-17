@@ -9,15 +9,14 @@ import CloudErrorIcon from '@bitrix24/b24icons-vue/main/CloudErrorIcon'
 const config = useRuntimeConfig()
 
 const toast = useToast()
-const { locale, defaultLocale, locales: localesI18n, setLocale } = useI18n()
 const b24Instance = useB24()
 const { isBitrixMobile } = useDevice()
 
 const isLoading = ref(true)
 const toaster: ToasterProps = { position: isBitrixMobile.value ? 'bottom-center' : 'top-right' }
 
-const lang = computed(() => locales[locale.value]?.code || defaultLocale)
-const dir = computed(() => locales[locale.value]?.dir || 'ltr')
+const lang = 'ru'
+const dir = 'ltr'
 
 useHead({
   meta: [
@@ -58,14 +57,6 @@ onMounted(async () => {
       icon: CloudErrorIcon
     })
   } else {
-    if (b24Instance.isInit()) {
-      const targetCode = (b24Instance.get() as B24Frame).getLang()
-      if (localesI18n.value.filter(i => i.code === targetCode).length > 0) {
-        await setLocale(targetCode as never)
-      } else {
-        console.error(`[i18n] Failed to load messages for locale: ${targetCode}`)
-      }
-    }
   }
 
   // Used to display the connection loading indicator
@@ -75,7 +66,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <B24App :toaster="toaster" :locale="locales[locale]">
+  <B24App :toaster="toaster" :locale="locales.ru">
     <NuxtLoadingIndicator />
 
     <NuxtLayout>
