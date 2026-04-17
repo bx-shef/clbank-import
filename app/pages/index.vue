@@ -35,7 +35,7 @@ const myCompany = reactive({
     title: ''
   },
   in: [] as any[],
-  out: [] as any[],
+  out: [] as any[]
 })
 
 // Статус импорта (упрощенный)
@@ -43,7 +43,7 @@ const importStatus = reactive({
   isProcessing: false,
   processed: 0,
   total: 0,
-  errors: [] as string[],
+  errors: [] as string[]
 })
 
 // Обработчик выбора файла
@@ -184,7 +184,7 @@ function parseRow(row: any): any {
     document: {
       num: row?.Num || '',
       date: row?.DocDate || '',
-      time: row?.DocTime || '',
+      time: row?.DocTime || ''
     },
     operation: {
       date: row?.OpDate || '',
@@ -197,7 +197,7 @@ function parseRow(row: any): any {
       name: row?.KorName || '',
       unn: row?.UNNRec || '',
       unp: row?.KorUNP || '',
-      accNumber: row?.Acc || '',
+      accNumber: row?.Acc || ''
     },
     importStatus: null as any
   }
@@ -271,13 +271,13 @@ function parseCSV(text: string) {
 
 // Конвертация CSV данных в структуру операций
 function convertCSVToOperations(csvData: any[]) {
-  csvData.forEach(item => {
+  csvData.forEach((item) => {
     const isIn = item.amount >= 0 // упрощенно
     const operation = {
       document: {
         num: item.id.toString(),
         date: item.date,
-        time: '',
+        time: ''
       },
       operation: {
         date: item.date,
@@ -290,7 +290,7 @@ function convertCSVToOperations(csvData: any[]) {
         name: item.contractor,
         unn: '',
         unp: '',
-        accNumber: '',
+        accNumber: ''
       },
       importStatus: null
     }
@@ -465,6 +465,7 @@ const hasOperations = computed(() => myCompany.in.length + myCompany.out.length 
 const sumIn = computed(() => myCompany.in.reduce((sum, row) => sum + (row.operation.sum || 0), 0))
 const sumOut = computed(() => myCompany.out.reduce((sum, row) => sum + (row.operation.sum || 0), 0))
 const totalOperations = computed(() => myCompany.in.length + myCompany.out.length)
+const footerYear = new Date().getFullYear()
 </script>
 
 <template>
@@ -490,7 +491,9 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
           <template #header>
             <div class="flex items-center gap-2">
               <UploadIcon class="size-5" />
-              <h3 class="text-lg font-semibold">Загрузка файла</h3>
+              <h3 class="text-lg font-semibold">
+                Загрузка файла
+              </h3>
             </div>
           </template>
           <div class="space-y-4">
@@ -510,7 +513,7 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
                   accept=".txt,.csv"
                   class="hidden"
                   @change="onFileSelect"
-                />
+                >
               </B24Button>
 
               <div v-if="file" class="flex items-center gap-2">
@@ -521,12 +524,14 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
             </div>
 
             <div v-if="isParsing" class="flex items-center gap-2">
-              <div class="size-5 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+              <div class="size-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
               <span>Идет обработка файла...</span>
             </div>
 
             <div v-if="errorContainer" class="p-3 bg-air-primary-alert/10 border border-air-primary-alert rounded-md">
-              <p class="text-sm text-air-primary-alert">{{ errorContainer }}</p>
+              <p class="text-sm text-air-primary-alert">
+                {{ errorContainer }}
+              </p>
             </div>
           </div>
         </B24Card>
@@ -536,26 +541,44 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
           <template #header>
             <div class="flex items-center gap-2">
               <CircleCheckIcon class="size-5 text-air-primary-success" />
-              <h3 class="text-lg font-semibold">Информация о счете</h3>
+              <h3 class="text-lg font-semibold">
+                Информация о счете
+              </h3>
             </div>
           </template>
           <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h4 class="font-medium text-sm text-muted">Наименование счета</h4>
-                <p class="text-lg">{{ myCompany.title }}</p>
+                <h4 class="font-medium text-sm text-muted">
+                  Наименование счета
+                </h4>
+                <p class="text-lg">
+                  {{ myCompany.title }}
+                </p>
               </div>
               <div>
-                <h4 class="font-medium text-sm text-muted">Расчетный счет</h4>
-                <p class="text-lg">{{ myCompany.accNumber }} <span class="text-sm text-muted">{{ myCompany.currency.code }}</span></p>
+                <h4 class="font-medium text-sm text-muted">
+                  Расчетный счет
+                </h4>
+                <p class="text-lg">
+                  {{ myCompany.accNumber }} <span class="text-sm text-muted">{{ myCompany.currency.code }}</span>
+                </p>
               </div>
               <div>
-                <h4 class="font-medium text-sm text-muted">Банк</h4>
-                <p class="text-lg">{{ myCompany.bankName }}</p>
+                <h4 class="font-medium text-sm text-muted">
+                  Банк
+                </h4>
+                <p class="text-lg">
+                  {{ myCompany.bankName }}
+                </p>
               </div>
               <div>
-                <h4 class="font-medium text-sm text-muted">Документ</h4>
-                <p class="text-lg">{{ myCompany.document.title }}</p>
+                <h4 class="font-medium text-sm text-muted">
+                  Документ
+                </h4>
+                <p class="text-lg">
+                  {{ myCompany.document.title }}
+                </p>
               </div>
             </div>
           </div>
@@ -566,30 +589,46 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
           <template #header>
             <div class="flex items-center gap-2">
               <DocumentIcon class="size-5" />
-              <h3 class="text-lg font-semibold">Операции по счету</h3>
+              <h3 class="text-lg font-semibold">
+                Операции по счету
+              </h3>
             </div>
           </template>
           <div class="space-y-6">
             <!-- Приход -->
-            <div v-if="myCompany.in.length > 0">
+            <div v-if="myCompany.in.length > 0" class="max-h-[30vh] overflow-y-auto">
               <div class="flex justify-between items-center mb-3">
-                <h4 class="font-semibold text-air-primary-success">Приход</h4>
+                <h4 class="font-semibold text-air-primary-success">
+                  Приход
+                </h4>
                 <span class="text-lg font-semibold text-air-primary-success">{{ sumIn.toFixed(2) }} {{ myCompany.currency.code }}</span>
               </div>
               <div class="space-y-3">
                 <div v-for="(op, index) in myCompany.in" :key="`in-${index}`" class="p-3 border border-gray-100 rounded-lg">
                   <div class="flex justify-between">
                     <div>
-                      <p class="font-medium">{{ op.client.name }}</p>
-                      <p class="text-sm text-muted">УНП: {{ op.client.unp || 'не указан' }}</p>
-                      <p class="text-sm text-muted">Счет: {{ op.client.accNumber || 'не указан' }}</p>
+                      <p class="font-medium">
+                        {{ op.client.name }}
+                      </p>
+                      <p class="text-sm text-muted">
+                        УНП: {{ op.client.unp || 'не указан' }}
+                      </p>
+                      <p class="text-sm text-muted">
+                        Счет: {{ op.client.accNumber || 'не указан' }}
+                      </p>
                     </div>
                     <div class="text-right">
-                      <p class="font-semibold text-air-primary-success">{{ op.operation.sum.toFixed(2) }} {{ myCompany.currency.code }}</p>
-                      <p class="text-sm text-muted">{{ op.operation.date }} {{ op.operation.time }}</p>
+                      <p class="font-semibold text-air-primary-success">
+                        {{ op.operation.sum.toFixed(2) }} {{ myCompany.currency.code }}
+                      </p>
+                      <p class="text-sm text-muted">
+                        {{ op.operation.date }} {{ op.operation.time }}
+                      </p>
                     </div>
                   </div>
-                  <p class="mt-2 text-sm text-gray-600">{{ op.operation.description }}</p>
+                  <p class="mt-2 text-sm text-gray-600">
+                    {{ op.operation.description }}
+                  </p>
                   <div v-if="op.importStatus" class="mt-2">
                     <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
                       {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
@@ -600,25 +639,39 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
             </div>
 
             <!-- Расход -->
-            <div v-if="myCompany.out.length > 0">
+            <div v-if="myCompany.out.length > 0" class="max-h-[30vh] overflow-y-auto">
               <div class="flex justify-between items-center mb-3 mt-6">
-                <h4 class="font-semibold text-air-primary-alert">Расход</h4>
+                <h4 class="font-semibold text-air-primary-alert">
+                  Расход
+                </h4>
                 <span class="text-lg font-semibold text-air-primary-alert">-{{ sumOut.toFixed(2) }} {{ myCompany.currency.code }}</span>
               </div>
               <div class="space-y-3">
                 <div v-for="(op, index) in myCompany.out" :key="`out-${index}`" class="p-3 border border-gray-100 rounded-lg">
                   <div class="flex justify-between">
                     <div>
-                      <p class="font-medium">{{ op.client.name }}</p>
-                      <p class="text-sm text-muted">УНП: {{ op.client.unp || 'не указан' }}</p>
-                      <p class="text-sm text-muted">Счет: {{ op.client.accNumber || 'не указан' }}</p>
+                      <p class="font-medium">
+                        {{ op.client.name }}
+                      </p>
+                      <p class="text-sm text-muted">
+                        УНП: {{ op.client.unp || 'не указан' }}
+                      </p>
+                      <p class="text-sm text-muted">
+                        Счет: {{ op.client.accNumber || 'не указан' }}
+                      </p>
                     </div>
                     <div class="text-right">
-                      <p class="font-semibold text-air-primary-alert">-{{ op.operation.sum.toFixed(2) }} {{ myCompany.currency.code }}</p>
-                      <p class="text-sm text-muted">{{ op.operation.date }} {{ op.operation.time }}</p>
+                      <p class="font-semibold text-air-primary-alert">
+                        -{{ op.operation.sum.toFixed(2) }} {{ myCompany.currency.code }}
+                      </p>
+                      <p class="text-sm text-muted">
+                        {{ op.operation.date }} {{ op.operation.time }}
+                      </p>
                     </div>
                   </div>
-                  <p class="mt-2 text-sm text-gray-600">{{ op.operation.description }}</p>
+                  <p class="mt-2 text-sm text-gray-600">
+                    {{ op.operation.description }}
+                  </p>
                   <div v-if="op.importStatus" class="mt-2">
                     <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
                       {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
@@ -639,7 +692,9 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
           <template #header>
             <div class="flex items-center gap-2">
               <SendIcon class="size-5" />
-              <h3 class="text-lg font-semibold">Импорт в Bitrix24</h3>
+              <h3 class="text-lg font-semibold">
+                Импорт в Bitrix24
+              </h3>
             </div>
           </template>
           <div class="space-y-4">
@@ -661,7 +716,7 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
               />
 
               <div v-if="isImporting" class="flex items-center gap-2">
-                <div class="size-5 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                <div class="size-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 <span>Импортировано: {{ importStatus.processed }} из {{ importStatus.total }}</span>
               </div>
 
@@ -672,14 +727,20 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
             </div>
 
             <div v-if="importStatus.errors.length > 0" class="p-3 bg-air-primary-warning/10 border border-air-primary-warning rounded-md">
-              <h4 class="font-medium mb-2">Ошибки импорта:</h4>
+              <h4 class="font-medium mb-2">
+                Ошибки импорта:
+              </h4>
               <ul class="text-sm space-y-1">
-                <li v-for="(error, idx) in importStatus.errors" :key="idx">• {{ error }}</li>
+                <li v-for="(error, idx) in importStatus.errors" :key="idx">
+                  • {{ error }}
+                </li>
               </ul>
             </div>
 
             <div class="bg-elevated rounded-lg p-4">
-              <h4 class="font-medium mb-2">Что будет создано:</h4>
+              <h4 class="font-medium mb-2">
+                Что будет создано:
+              </h4>
               <ul class="space-y-1 text-sm">
                 <li>• Каждая операция будет создана как элемент смарт-процесса</li>
                 <li>• Проверка дубликатов по уникальному хэшу</li>
@@ -714,6 +775,21 @@ const totalOperations = computed(() => myCompany.in.length + myCompany.out.lengt
           />
         </div>
       </div>
+    </template>
+
+    <template #footer>
+      <B24Footer>
+        <template #left>
+          <p class="text-sm">
+            © {{ footerYear }} Битрикс24
+          </p>
+        </template>
+        <template #right>
+          <p v-if="hasOperations" class="text-sm">
+            Операций: {{ totalOperations }}
+          </p>
+        </template>
+      </B24Footer>
     </template>
   </B24DashboardPanel>
 </template>
