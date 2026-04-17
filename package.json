@@ -9,8 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck",
-    "translate-ui": "tsx tools/translate.ui.ts"
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@bitrix24/b24icons-vue": "^2.0.7",
