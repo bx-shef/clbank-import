@@ -29,18 +29,7 @@ const page = computed(() => {
     title: t('page.index.seo.title'),
     addButton: {
       isOnlyBitrixMobile: false,
-      items: [
-        {
-          label: 'New mail',
-          icon: SendIcon,
-          to: '/inbox'
-        },
-        {
-          label: 'New customer',
-          icon: AddPersonIcon,
-          to: '/customers'
-        }
-      ] satisfies DropdownMenuItem[]
+      items: [] satisfies DropdownMenuItem[]
     }
   }
 })
@@ -67,7 +56,6 @@ await initPage()
           <B24Button
             v-if="!isUseB24"
             size="sm"
-            to="/install"
             label="Mock Installation"
             color="air-boost"
             :icon="Market1Icon"

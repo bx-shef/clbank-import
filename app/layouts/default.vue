@@ -3,9 +3,6 @@ import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from
 import type { Ref } from 'vue'
 import { computed, ref, inject, onMounted } from 'vue'
 import HomeIcon from '@bitrix24/b24icons-vue/outline/HomeIcon'
-import MessagesIcon from '@bitrix24/b24icons-vue/outline/MessagesIcon'
-import GroupIcon from '@bitrix24/b24icons-vue/outline/GroupIcon'
-import SettingsIcon from '@bitrix24/b24icons-vue/outline/SettingsIcon'
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
 import Bitrix24Icon from '@bitrix24/b24icons-vue/common-service/Bitrix24Icon'
 import TelegramIcon from '@bitrix24/b24icons-vue/outline/TelegramIcon'
@@ -46,67 +43,12 @@ const links = computed<NavigationMenuItem[][]>(() => [
       }
     },
     {
-      label: 'Inbox',
-      icon: MessagesIcon,
-      to: '/inbox',
-      badge: '4',
-      onSelect: () => {
-        open.value = false
-      }
-    },
-    {
-      label: 'Customers',
-      icon: GroupIcon,
-      to: '/customers',
-      onSelect: () => {
-        open.value = false
-      }
-    },
-    {
       label: 'Import Bank File',
       icon: UploadIcon,
       to: '/import',
       onSelect: () => {
         open.value = false
       }
-    },
-    {
-      label: 'Settings',
-      to: '/settings',
-      icon: SettingsIcon,
-      defaultOpen: true,
-      type: 'trigger',
-      children: [
-        {
-          label: 'General',
-          to: '/settings',
-          exact: true,
-          onSelect: () => {
-            open.value = false
-          }
-        },
-        {
-          label: 'Members',
-          to: '/settings/members',
-          onSelect: () => {
-            open.value = false
-          }
-        },
-        {
-          label: 'Notifications',
-          to: '/settings/notifications',
-          onSelect: () => {
-            open.value = false
-          }
-        },
-        {
-          label: 'Security',
-          to: '/settings/security',
-          onSelect: () => {
-            open.value = false
-          }
-        }
-      ]
     }
   ],
   [

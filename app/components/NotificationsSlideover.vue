@@ -20,10 +20,9 @@ const { data: notifications } = await useFetch<Notification[]>('/api/notificatio
   >
     <template #body>
       <B24Card class="base-mode" :b24ui="{ body: '!px-0 !py-0' }">
-        <NuxtLink
+        <div
           v-for="notification in notifications"
           :key="notification.id"
-          :to="`/inbox?id=${notification.id}`"
           class="relative flex items-start px-3 py-2 hover:bg-(--ui-color-bg-content-secondary) border-b border-(--ui-color-divider-default) last:border-b-0"
         >
           <B24Chip
@@ -53,7 +52,7 @@ const { data: notifications } = await useFetch<Notification[]>('/api/notificatio
               {{ notification.body }}
             </p>
           </div>
-        </NuxtLink>
+        </div>
       </B24Card>
     </template>
   </B24Slideover>
