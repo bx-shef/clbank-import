@@ -6,6 +6,7 @@ import HomeIcon from '@bitrix24/b24icons-vue/outline/HomeIcon'
 import MessagesIcon from '@bitrix24/b24icons-vue/outline/MessagesIcon'
 import GroupIcon from '@bitrix24/b24icons-vue/outline/GroupIcon'
 import SettingsIcon from '@bitrix24/b24icons-vue/outline/SettingsIcon'
+import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
 import Bitrix24Icon from '@bitrix24/b24icons-vue/common-service/Bitrix24Icon'
 import TelegramIcon from '@bitrix24/b24icons-vue/outline/TelegramIcon'
 import GitHubIcon from '@bitrix24/b24icons-vue/social/GitHubIcon'
@@ -57,6 +58,14 @@ const links = computed<NavigationMenuItem[][]>(() => [
       label: 'Customers',
       icon: GroupIcon,
       to: '/customers',
+      onSelect: () => {
+        open.value = false
+      }
+    },
+    {
+      label: 'Import Bank File',
+      icon: UploadIcon,
+      to: '/import',
       onSelect: () => {
         open.value = false
       }
