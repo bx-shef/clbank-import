@@ -2,7 +2,6 @@
 import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from '@bitrix24/b24ui-nuxt'
 import type { Ref } from 'vue'
 import { computed, ref, inject, onMounted } from 'vue'
-import HomeIcon from '@bitrix24/b24icons-vue/outline/HomeIcon'
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
 import Bitrix24Icon from '@bitrix24/b24icons-vue/common-service/Bitrix24Icon'
 import TelegramIcon from '@bitrix24/b24icons-vue/outline/TelegramIcon'
@@ -35,17 +34,9 @@ const b24DocsLink = computed(() => {
 const links = computed<NavigationMenuItem[][]>(() => [
   [
     {
-      label: 'Home',
-      icon: HomeIcon,
-      to: '/',
-      onSelect: () => {
-        open.value = false
-      }
-    },
-    {
       label: 'Import Bank File',
       icon: UploadIcon,
-      to: '/import',
+      to: '/',
       onSelect: () => {
         open.value = false
       }
