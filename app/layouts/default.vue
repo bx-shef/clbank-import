@@ -163,7 +163,5 @@ onMounted(async () => {
     <B24DashboardSearch :groups="groups" :color-mode="false" />
 
     <slot />
-
-    <NotificationsSlideover />
   </B24DashboardGroup>
 </template>
