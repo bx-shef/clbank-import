@@ -71,7 +71,6 @@ When registering the application in the Bitrix24 Partner Portal or as a local ap
 | Parameter | URL |
 | :--- | :--- |
 | **Application URL** | `https://your-app.example.com` |
-| **Installation URL** | `https://your-app.example.com/install` |
 
 ## Getting Started
 
