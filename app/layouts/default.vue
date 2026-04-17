@@ -1,93 +1,11 @@
 <script setup lang="ts">
-import type { NavigationMenuItem, CommandPaletteGroup, CommandPaletteItem } from '@bitrix24/b24ui-nuxt'
 import type { Ref } from 'vue'
-import { computed, ref, inject, onMounted } from 'vue'
-import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
-import Bitrix24Icon from '@bitrix24/b24icons-vue/common-service/Bitrix24Icon'
-import TelegramIcon from '@bitrix24/b24icons-vue/outline/TelegramIcon'
-import GitHubIcon from '@bitrix24/b24icons-vue/social/GitHubIcon'
-import HamburgerMenuIcon from '@bitrix24/b24icons-vue/outline/HamburgerMenuIcon'
+import { ref, inject, onMounted } from 'vue'
 
-const route = useRoute()
 const toast = useToast()
-
-const open = ref(false)
 const isLoading = inject<Ref<boolean>>('isLoading', ref(false))
 
-const isNeedChangeTarget = ref(false)
-const tgLink = computed(() => {
-  return (
-    isNeedChangeTarget.value && (typeof window !== 'undefined' && window.navigator?.language.includes('ru'))
-  )
-    ? 'https://t.me/bitrix24apps'
-    : 'https://t.me/b24_dev'
-})
-
-const b24DocsLink = computed(() => {
-  return (
-    isNeedChangeTarget.value && (typeof window !== 'undefined' && window.navigator?.language.includes('ru'))
-  )
-    ? 'https://apidocs.bitrix24.ru/'
-    : 'https://apidocs.bitrix24.com/'
-})
-
-const links = computed<NavigationMenuItem[][]>(() => [
-  [
-    {
-      label: 'Import Bank File',
-      icon: UploadIcon,
-      to: '/',
-      onSelect: () => {
-        open.value = false
-      }
-    }
-  ],
-  [
-    {
-      label: 'Bitrix24 REST API',
-      icon: Bitrix24Icon,
-      to: b24DocsLink.value,
-      target: '_blank'
-    },
-    {
-      label: 'Help & Support',
-      icon: TelegramIcon,
-      to: tgLink.value,
-      target: '_blank'
-    },
-    {
-      label: 'GitHub',
-      icon: GitHubIcon,
-      to: 'https://github.com/bitrix24/templates-dashboard',
-      target: '_blank'
-    }
-  ]
-])
-
-const groups = computed<CommandPaletteGroup[]>(() => [
-  {
-    id: 'links',
-    label: 'Go to',
-    items: links.value.flat() as CommandPaletteItem[]
-  },
-  {
-    id: 'code',
-    label: 'Code',
-    items: [
-      {
-        id: 'source',
-        label: 'View page source',
-        icon: GitHubIcon,
-        to: `https://github.com/bitrix24/templates-dashboard/blob/main/app/pages${route.path === '/' ? '/index' : route.path}.vue`,
-        target: '_blank'
-      }
-    ]
-  }
-])
-
 onMounted(async () => {
-  isNeedChangeTarget.value = true
-
   const cookie = useCookie('cookie-consent')
   if (cookie.value === 'accepted') {
     return
@@ -121,47 +39,6 @@ onMounted(async () => {
     unit="px"
     storage="local"
   >
-    <B24DashboardSidebar
-      id="default"
-      v-model:open="open"
-      mode="slideover"
-      collapsible
-      resizable
-      class="border-e-1"
-    >
-      <template #header="{ collapsed }">
-        <B24DashboardSidebarCollapse :icon="HamburgerMenuIcon" class="size-9 px-2" />
-        <AppTitle v-if="!collapsed" />
-      </template>
-
-      <template #default="{ collapsed }">
-        <B24DashboardSearchButton
-          :collapsed="collapsed"
-          class="opacity-70 hover:opacity-100"
-        />
-
-        <B24NavigationMenu
-          :collapsed="collapsed"
-          :items="links[0]"
-          orientation="vertical"
-          popover
-        />
-
-        <B24NavigationMenu
-          :collapsed="collapsed"
-          :items="links[1]"
-          orientation="vertical"
-          class="mt-auto"
-        />
-      </template>
-
-      <template #footer="{ collapsed }">
-        <UserMenu class="mb-2" :collapsed="collapsed" />
-      </template>
-    </B24DashboardSidebar>
-
-    <B24DashboardSearch :groups="groups" :color-mode="false" />
-
     <slot />
   </B24DashboardGroup>
 </template>
