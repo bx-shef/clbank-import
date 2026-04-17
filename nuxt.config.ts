@@ -31,11 +31,7 @@ export default defineNuxtConfig({
      * @see https://nuxt.com/docs/guide/going-further/runtime-config#example
      */
     public: {
-      siteUrl: prodUrl,
-      /** ID типа смарт-процесса для crm.item.* — на каждом портале Bitrix24 свой (см. URL /crm/type/{id}/). */
-      b24SmartEntityTypeId: Number(process.env.NUXT_PUBLIC_B24_SMART_ENTITY_TYPE_ID) || 1036,
-      b24CategoryInId: Number(process.env.NUXT_PUBLIC_B24_CATEGORY_IN_ID) || 14,
-      b24CategoryOutId: Number(process.env.NUXT_PUBLIC_B24_CATEGORY_OUT_ID) || 16
+      siteUrl: prodUrl
     }
   },
 

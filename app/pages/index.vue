@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useB24 } from '~/composables/useB24'
 import { Parser, ParserTxtFile } from '~/composables/useParser'
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
@@ -9,10 +9,32 @@ import CircleCheckIcon from '@bitrix24/b24icons-vue/outline/CircleCheckIcon'
 import * as iconv from 'iconv-lite'
 import { Buffer } from 'buffer'
 import MD5 from 'crypto-js/md5'
+import type { TypeB24 } from '@bitrix24/b24jssdk'
 
 const toast = useToast()
 const b24Instance = useB24()
 const isUseB24 = computed(() => b24Instance.isInit())
+
+const LIST_IBLOCK_TYPE_ID = 'lists'
+const LIST_IBLOCK_ID = 31
+
+/** Соответствие кодов полей списка «Платежи» и PROPERTY_* из lists.field.get */
+const FIELD_MAP = {
+  paymentType: 'PROPERTY_173',
+  amount: 'PROPERTY_175',
+  currency: 'PROPERTY_207',
+  operationDate: 'PROPERTY_209',
+  docNumber: 'PROPERTY_163',
+  ourAcc: 'PROPERTY_185',
+  clientAcc: 'PROPERTY_189',
+  clientName: 'PROPERTY_211',
+  clientUnp: 'PROPERTY_213',
+  description: 'PROPERTY_215',
+  hashId: 'PROPERTY_217',
+  category: 'PROPERTY_169',
+  method: 'PROPERTY_171',
+  docDateTime: 'PROPERTY_165'
+} as const
 
 // Состояния
 const file = ref<File | null>(null)
@@ -160,7 +182,7 @@ function processMapping(parsedData: any) {
   } else if (currencyCode === 'RUB' || parseInt(currencyCode) === 643) {
     myCompany.currency.number = 643
     myCompany.currency.code = 'RUB'
-  } else if (currencyCode === 'BYN' || parseInt(currencyCode) === 933) {
+  } else {
     myCompany.currency.number = 933
     myCompany.currency.code = 'BYN'
   }
@@ -354,16 +376,13 @@ async function importToBitrix24() {
   importStatus.total = myCompany.in.length + myCompany.out.length
   importStatus.errors = []
 
-  const smartEntityTypeId = 1036
-  const operationIds = { in: 14, out: 16 } // как в демо
-
   try {
     // Объединяем все операции
     const allOperations = [...myCompany.in, ...myCompany.out]
 
     for (const operation of allOperations) {
       try {
-        await processRow(operation, b24, smartEntityTypeId, operationIds)
+        await processRow(operation, b24)
         importStatus.processed++
       } catch (error: any) {
         importStatus.errors.push(`Операция ${operation.document.num}: ${error.message}`)
@@ -398,14 +417,9 @@ async function importToBitrix24() {
   }
 }
 
-// Обработка одной строки (аналогично демо)
-async function processRow(
-  row: any,
-  b24: any,
-  smartEntityTypeId: number,
-  operationIds: { in: number, out: number }
-) {
-  const rowXmlId = MD5([
+// Сохранение одной операции в список «Платежи»
+async function processRow(row: any, b24: TypeB24) {
+  const rowHash = MD5([
     row.client.accNumber,
     row.document.num,
     row.operation.date,
@@ -413,39 +427,63 @@ async function processRow(
     myCompany.currency.code
   ].join('-')).toString()
 
-  // Проверка дубликата
-  const response = await b24.callMethod('crm.item.list', {
-    entityTypeId: smartEntityTypeId,
-    filter: {
-      '=xmlId': rowXmlId
+  // Проверка дубликата по полю HASH_ID
+  const checkResponse = await b24.actions.v2.call.make({
+    method: 'lists.element.get',
+    params: {
+      IBLOCK_TYPE_ID: LIST_IBLOCK_TYPE_ID,
+      IBLOCK_ID: LIST_IBLOCK_ID,
+      ELEMENT_CODE: rowHash,
+      filter: { [FIELD_MAP.hashId]: rowHash }
     },
-    select: ['id', 'xmlId', '*']
+    requestId: `lists.element.get:${rowHash}`
   })
 
-  const data: any[] = response.getData().result?.items || []
-  if (data.length > 0) {
+  if (!checkResponse.isSuccess) {
+    throw new Error(checkResponse.getErrorMessages().join('; '))
+  }
+
+  const existing = checkResponse.getData()?.result
+  if (existing && Object.keys(existing).length > 0) {
     row.importStatus = { isSuccess: false, message: 'Запись уже импортирована' }
     throw new Error('Эта запись была ранее импортирована')
   }
 
-  // Создание записи
-  const createResponse = await b24.callMethod('crm.item.add', {
-    entityTypeId: smartEntityTypeId,
-    fields: {
-      xmlId: rowXmlId,
-      title: `${row.operation.isIn ? 'Приход от' : 'Расход на'} ${row.client.name}`,
-      opportunity: row.operation.sum,
-      currencyId: myCompany.currency.code,
-      categoryId: row.operation.isIn ? operationIds.in : operationIds.out,
-      ufCrm11RS: myCompany.accNumber,
-      ufCrm11Date: row.operation.date,
-      ufCrm11Number: row.document.num,
-      ufCrm11ClientRs: row.client.accNumber,
-      ufCrm11Description: row.operation.description
-    }
+  const docDateTime = [row.document.date, row.document.time].filter(Boolean).join(' ')
+
+  // Создание элемента в списке «Платежи»
+  const createResponse = await b24.actions.v2.call.make({
+    method: 'lists.element.add',
+    params: {
+      IBLOCK_TYPE_ID: LIST_IBLOCK_TYPE_ID,
+      IBLOCK_ID: LIST_IBLOCK_ID,
+      ELEMENT_CODE: rowHash,
+      FIELDS: {
+        NAME: `${row.operation.isIn ? 'Приход от' : 'Расход на'} ${row.client.name}`,
+        [FIELD_MAP.hashId]: rowHash, // Хэш (дедупликация)
+        [FIELD_MAP.category]: row.operation.isIn ? '127' : '129', // Направление: Приход / Расход
+        [FIELD_MAP.paymentType]: '143', // Тип операции: Полная оплата
+        [FIELD_MAP.amount]: `${row.operation.sum}|${myCompany.currency.code}`, // Сумма (Money)
+        [FIELD_MAP.currency]: myCompany.currency.code, // Валюта
+        [FIELD_MAP.operationDate]: row.operation.date, // Дата операции
+        [FIELD_MAP.docDateTime]: docDateTime, // Дата документа (DateTime)
+        [FIELD_MAP.docNumber]: String(row.document.num), // Номер документа
+        [FIELD_MAP.ourAcc]: myCompany.accNumber ?? '', // Р/счет моей компании
+        [FIELD_MAP.clientAcc]: row.client.accNumber, // Р/счет клиента
+        [FIELD_MAP.clientName]: row.client.name, // Наименование клиента
+        [FIELD_MAP.clientUnp]: row.client.unp, // УНП клиента
+        [FIELD_MAP.description]: row.operation.description, // Назначение платежа
+        [FIELD_MAP.method]: '137' // Способ: Безнал
+      }
+    },
+    requestId: `lists.element.add:${rowHash}`
   })
 
-  const result = createResponse.getData().result.item
+  if (!createResponse.isSuccess) {
+    throw new Error(createResponse.getErrorMessages().join('; '))
+  }
+
+  const result = createResponse.getData()?.result
   row.importStatus = { isSuccess: true, result }
 }
 
@@ -742,9 +780,9 @@ const footerYear = new Date().getFullYear()
                 Что будет создано:
               </h4>
               <ul class="space-y-1 text-sm">
-                <li>• Каждая операция будет создана как элемент смарт-процесса</li>
-                <li>• Проверка дубликатов по уникальному хэшу</li>
-                <li>• Приходы и расходы разделены по категориям</li>
+                <li>• Каждая операция будет создана как элемент списка «Платежи»</li>
+                <li>• Проверка дубликатов по уникальному хэшу (поле HASH_ID)</li>
+                <li>• Приходы и расходы разделены по полю «Направление»</li>
                 <li>• Сохраняются все реквизиты: счет, УНП, назначение платежа</li>
               </ul>
             </div>
