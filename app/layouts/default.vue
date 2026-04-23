@@ -3,7 +3,6 @@ import type { Ref } from 'vue'
 import { ref, inject } from 'vue'
 
 const isLoading = inject<Ref<boolean>>('isLoading', ref(false))
-
 </script>
 
 <template>
