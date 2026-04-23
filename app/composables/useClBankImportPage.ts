@@ -13,16 +13,8 @@ import {
   FILE_SIGNATURE_1C,
   FILE_SIGNATURE_CLIENT_BANK
 } from '~/constants/clbank'
-import {
-  FIELD_MAP,
-  LIST_IBLOCK_ID,
-  LIST_IBLOCK_TYPE_ID,
-  PAYMENT_CATEGORY_IN,
-  PAYMENT_CATEGORY_OUT,
-  PAYMENT_METHOD_NON_CASH,
-  PAYMENT_TYPE_FULL
-} from '~/constants/payments-list'
 import { useB24 } from '~/composables/useB24'
+import { useB24ListConfig } from '~/composables/useB24ListConfig'
 import { Parser, ParserTxtFile } from '~/composables/useParser'
 import type {
   BankOperation,
@@ -62,6 +54,7 @@ function hasRecords(result: unknown): boolean {
 export const useClBankImportPage = () => {
   const toast = useToast()
   const b24Instance = useB24()
+  const listConfig = useB24ListConfig()
   const isUseB24 = computed(() => b24Instance.isInit())
 
   const file = ref<File | null>(null)
@@ -434,10 +427,10 @@ export const useClBankImportPage = () => {
     const checkResponse = await b24.actions.v2.call.make({
       method: 'lists.element.get',
       params: {
-        IBLOCK_TYPE_ID: LIST_IBLOCK_TYPE_ID,
-        IBLOCK_ID: LIST_IBLOCK_ID,
+        IBLOCK_TYPE_ID: listConfig.iblockTypeId,
+        IBLOCK_ID: listConfig.iblockId,
         ELEMENT_CODE: rowHash,
-        filter: { [FIELD_MAP.hashId]: rowHash }
+        filter: { [listConfig.fieldMap.hashId]: rowHash }
       },
       requestId: `lists.element.get:${rowHash}`
     })
@@ -456,28 +449,29 @@ export const useClBankImportPage = () => {
     if (row.document.date && row.document.time) {
       docDateTime = [row.document.date, row.document.time].join(' ')
     }
+    const { fieldMap } = listConfig
     const createResponse = await b24.actions.v2.call.make({
       method: 'lists.element.add',
       params: {
-        IBLOCK_TYPE_ID: LIST_IBLOCK_TYPE_ID,
-        IBLOCK_ID: LIST_IBLOCK_ID,
+        IBLOCK_TYPE_ID: listConfig.iblockTypeId,
+        IBLOCK_ID: listConfig.iblockId,
         ELEMENT_CODE: rowHash,
         FIELDS: {
           NAME: `${row.operation.isIn ? 'Приход от' : 'Расход на'} ${row.client.name}`,
-          [FIELD_MAP.hashId]: rowHash,
-          [FIELD_MAP.category]: row.operation.isIn ? PAYMENT_CATEGORY_IN : PAYMENT_CATEGORY_OUT,
-          [FIELD_MAP.paymentType]: PAYMENT_TYPE_FULL,
-          [FIELD_MAP.amount]: `${row.operation.sum}|${myCompany.currency.code}`,
-          [FIELD_MAP.currency]: myCompany.currency.code,
-          [FIELD_MAP.operationDate]: row.operation.date,
-          [FIELD_MAP.docDateTime]: docDateTime,
-          [FIELD_MAP.docNumber]: row.document.num,
-          [FIELD_MAP.ourAcc]: myCompany.accNumber ?? '',
-          [FIELD_MAP.clientAcc]: row.client.accNumber,
-          [FIELD_MAP.clientName]: row.client.name,
-          [FIELD_MAP.clientUnp]: row.client.unp,
-          [FIELD_MAP.description]: row.operation.description,
-          [FIELD_MAP.method]: PAYMENT_METHOD_NON_CASH
+          [fieldMap.hashId]: rowHash,
+          [fieldMap.category]: row.operation.isIn ? listConfig.paymentCategoryIn : listConfig.paymentCategoryOut,
+          [fieldMap.paymentType]: listConfig.paymentTypeFull,
+          [fieldMap.amount]: `${row.operation.sum}|${myCompany.currency.code}`,
+          [fieldMap.currency]: myCompany.currency.code,
+          [fieldMap.operationDate]: row.operation.date,
+          [fieldMap.docDateTime]: docDateTime,
+          [fieldMap.docNumber]: row.document.num,
+          [fieldMap.ourAcc]: myCompany.accNumber ?? '',
+          [fieldMap.clientAcc]: row.client.accNumber,
+          [fieldMap.clientName]: row.client.name,
+          [fieldMap.clientUnp]: row.client.unp,
+          [fieldMap.description]: row.operation.description,
+          [fieldMap.method]: listConfig.paymentMethodNonCash
         }
       },
       requestId: `lists.element.add:${rowHash}`
