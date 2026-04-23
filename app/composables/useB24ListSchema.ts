@@ -1,4 +1,5 @@
 import type { TypeB24 } from '@bitrix24/b24jssdk'
+import { B24_LIST_ENUM_LABELS } from '~/constants/b24List'
 
 /**
  * Resolves Bitrix24 universal-list schema at runtime.
@@ -39,45 +40,6 @@ export interface B24ListSchema {
   getEnumId: (xmlCode: string, enumXmlCode: string) => string
 }
 
-/**
- * Maps symbolic enum codes (XML_ID) to the exact Russian labels configured in
- * Bitrix24 for the payments list. Needed because `lists.field.get` only
- * exposes display labels — XML_IDs of enum values are not returned.
- *
- * Keep in sync with the list configuration in Bitrix24.
- */
-const ENUM_LABELS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
-  CATEGORY: {
-    IN: 'Приход',
-    OUT: 'Расход'
-  },
-  TYPE: {
-    FULLPAY: 'Полная оплата',
-    PREPAY: 'Частичная оплата'
-  },
-  METHOD: {
-    CASH: 'Наличные',
-    ACQUIRING: 'Эквайринг',
-    ACQUIRING_INTERN: 'Интернет эквайринг',
-    CASHLESS: 'Безнал',
-    INNER: 'Внутренний счет (Бонусы)',
-    NOTSET: '~ не определено ~'
-  },
-  STATUS: {
-    NOT_PAID: 'Не оплачено',
-    PAID: 'Оплачено',
-    CANCEL: 'Отменено',
-    RETURN: 'Возврат',
-    TO_DELETE: 'Помечено на удаление'
-  },
-  STATUS_PROCESS: {
-    NEW: 'Черновик',
-    PROCESS: 'Обработка',
-    SUCCESS: 'Успех',
-    FAIL: 'Брак'
-  }
-}
-
 const fieldIdByCode = new Map<string, string>()
 const enumIdByCode = new Map<string, Map<string, string>>()
 let loaded = false
@@ -92,7 +54,7 @@ function normalizeLabel(label: string): string {
 }
 
 function buildEnumMap(fieldCode: string, displayValues: Record<string, string>): Map<string, string> | null {
-  const labels = ENUM_LABELS[fieldCode]
+  const labels = B24_LIST_ENUM_LABELS[fieldCode]
   if (!labels) {
     return null
   }

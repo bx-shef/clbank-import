@@ -13,6 +13,14 @@ import {
   FILE_SIGNATURE_1C,
   FILE_SIGNATURE_CLIENT_BANK
 } from '~/constants/clbank'
+import {
+  B24_CURRENCY_BYN,
+  B24_IMPORT_ELEMENT_TEXT,
+  B24_IMPORT_ENUM,
+  B24_IMPORT_SYS_INFO_MARKER,
+  B24_LIST_REQUIRED_ENUMS,
+  B24_LIST_REQUIRED_FIELD_CODES
+} from '~/constants/b24List'
 import { useB24 } from '~/composables/useB24'
 import { useB24ListConfig } from '~/composables/useB24ListConfig'
 import { useB24ListSchema } from '~/composables/useB24ListSchema'
@@ -28,34 +36,6 @@ import type {
 import { getErrorMessage } from '~/utils/error'
 
 type CurrencyCode = keyof typeof CURRENCY_MAP
-
-const REQUIRED_FIELD_CODES = [
-  'STATUS',
-  'STATUS_PROCESS',
-  'DOC_NUM',
-  'DOC_DATE_TIME',
-  'CATEGORY',
-  'METHOD',
-  'TYPE',
-  'SUM',
-  'COMMENT',
-  'MY_COMPANY_LST_RQ',
-  'MY_COMPANY_BANK_ACCNUM',
-  'CLIENT_BANK_ACCNUM',
-  'ARTICLE',
-  'BASE_SUM',
-  'SYS_INFO'
-] as const
-
-const REQUIRED_ENUMS: Record<string, readonly string[]> = {
-  CATEGORY: ['IN', 'OUT'],
-  TYPE: ['FULLPAY'],
-  METHOD: ['CASHLESS'],
-  STATUS: ['PAID'],
-  STATUS_PROCESS: ['NEW']
-}
-
-const BYN_CURRENCY_CODE = 'BYN'
 
 function parseAmount(value: string | undefined): number {
   if (!value) {
@@ -419,7 +399,7 @@ export const useClBankImportPage = () => {
         throw error
       }
 
-      const missing = schema.validateCodes(REQUIRED_FIELD_CODES, REQUIRED_ENUMS)
+      const missing = schema.validateCodes(B24_LIST_REQUIRED_FIELD_CODES, B24_LIST_REQUIRED_ENUMS)
       if (missing.length > 0) {
         const message = `В списке Bitrix24 не хватает полей/значений: ${missing.join(', ')}`
         errorContainer.value = message
@@ -522,23 +502,25 @@ export const useClBankImportPage = () => {
     const currencyCode = myCompany.currency.code
     const docDateTime = [row.document.date, row.document.time].filter(Boolean).join(' ')
 
+    const t = B24_IMPORT_ELEMENT_TEXT
+    const en = B24_IMPORT_ENUM
     return {
-      NAME: `${isIn ? 'Приход от' : 'Расход на'} ${row.client.name} за ${docDateTime}`.trim(),
-      DETAIL_TEXT: `Назначение: ${row.operation.description}\n\n${row.client.name} УНП: ${row.client.unp}`,
-      [f('STATUS')]: e('STATUS', 'PAID'),
-      [f('STATUS_PROCESS')]: e('STATUS_PROCESS', 'PROCESS'),
+      NAME: `${isIn ? t.nameIn : t.nameOut} ${row.client.name}${t.nameSuffix}${docDateTime}`.trim(),
+      DETAIL_TEXT: `${t.detailTextPrefix}${row.operation.description}\n\n${row.client.name}${t.detailTextUnpLabel}${row.client.unp}`,
+      [f('STATUS')]: e('STATUS', en.STATUS.PAID),
+      [f('STATUS_PROCESS')]: e('STATUS_PROCESS', en.STATUS_PROCESS.PROCESS),
       [f('DOC_NUM')]: row.document.num,
       [f('DOC_DATE_TIME')]: docDateTime,
-      [f('CATEGORY')]: e('CATEGORY', isIn ? 'IN' : 'OUT'),
-      [f('METHOD')]: e('METHOD', 'CASHLESS'),
-      [f('TYPE')]: e('TYPE', 'FULLPAY'),
+      [f('CATEGORY')]: e('CATEGORY', isIn ? en.CATEGORY.IN : en.CATEGORY.OUT),
+      [f('METHOD')]: e('METHOD', en.METHOD.CASHLESS),
+      [f('TYPE')]: e('TYPE', en.TYPE.FULLPAY),
       [f('SUM')]: `${row.operation.sum}|${currencyCode}`,
-      [f('BASE_SUM')]: currencyCode === BYN_CURRENCY_CODE ? row.operation.sum : 0,
+      [f('BASE_SUM')]: currencyCode === B24_CURRENCY_BYN ? row.operation.sum : 0,
       [f('MY_COMPANY_LST_RQ')]: listConfig.myCompanyId,
       [f('MY_COMPANY_BANK_ACCNUM')]: myCompany.accNumber ?? '',
       [f('CLIENT_BANK_ACCNUM')]: row.client.accNumber,
       [f('ARTICLE')]: isIn ? listConfig.articleIdIn : listConfig.articleIdOut,
-      [f('SYS_INFO')]: `IMPORT_CLIENT_BANK_FROM_FILE`
+      [f('SYS_INFO')]: B24_IMPORT_SYS_INFO_MARKER
     }
   }
 
