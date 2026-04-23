@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <script setup lang="ts">
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
 import DocumentIcon from '@bitrix24/b24icons-vue/main/DocumentIcon'
@@ -56,9 +57,9 @@ const {
           <template #header>
             <div class="flex items-center gap-2">
               <UploadIcon class="size-5" />
-              <h3 class="text-lg font-semibold">
+              <h2 class="text-2xl font-semibold">
                 Загрузка файла
-              </h3>
+              </h2>
             </div>
           </template>
           <div class="space-y-4">
@@ -106,9 +107,9 @@ const {
           <template #header>
             <div class="flex items-center gap-2">
               <CircleCheckIcon class="size-5 text-air-primary-success" />
-              <h3 class="text-lg font-semibold">
+              <h2 class="text-2xl font-semibold">
                 Информация о счете
-              </h3>
+              </h2>
             </div>
           </template>
           <div class="space-y-4">
@@ -154,97 +155,101 @@ const {
           <template #header>
             <div class="flex items-center gap-2">
               <DocumentIcon class="size-5" />
-              <h3 class="text-lg font-semibold">
+              <h2 class="text-2xl font-semibold">
                 Операции по счету
-              </h3>
+              </h2>
             </div>
           </template>
           <div class="space-y-6">
             <!-- Приход -->
-            <div class="flex justify-between items-center mb-3">
-              <h4 class="font-semibold text-air-primary-success">
-                Приход
-              </h4>
-              <span class="text-lg font-semibold text-air-primary-success">{{ formatAmountForDisplay(sumIn, myCompany.currency.code) }}</span>
-            </div>
-            <div v-if="myCompany.in.length > 0" class="max-h-[30vh] overflow-y-auto">
-              <div class="space-y-3">
-                <div v-for="(op, index) in myCompany.in" :key="`in-${index}`" class="p-3 border border-gray-100 rounded-lg">
-                  <div class="flex justify-between">
-                    <div>
-                      <p class="font-medium">
-                        {{ op.client.name }}
-                      </p>
-                      <p class="text-sm text-muted">
-                        УНП: {{ op.client.unp || 'не указан' }}
-                      </p>
-                      <p class="text-sm text-muted">
-                        Счет: {{ formatAccountDisplay(op.client.accNumber) }}
-                      </p>
+            <B24Card>
+              <template #header>
+                <div class="flex justify-between items-center mb-3">
+                  <h4 class="font-semibold text-air-primary-success">
+                    Приход
+                  </h4>
+                  <span class="text-lg font-semibold text-air-primary-success" v-html="formatAmountForDisplay(sumIn, myCompany.currency.code)" />
+                </div>
+              </template>
+              <div v-if="myCompany.in.length > 0" class="max-h-[30vh] overflow-y-auto">
+                <div class="space-y-3">
+                  <div v-for="(op, index) in myCompany.in" :key="`in-${index}`" class="p-3 border border-gray-100 rounded-lg">
+                    <div class="flex justify-between">
+                      <div>
+                        <p class="font-medium">
+                          {{ op.client.name }}
+                        </p>
+                        <p class="text-sm text-muted">
+                          УНП: {{ op.client.unp || 'не указан' }}
+                        </p>
+                        <p class="text-sm text-muted">
+                          Счет: {{ formatAccountDisplay(op.client.accNumber) }}
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-semibold text-air-primary-success" v-html="formatAmountForDisplay(op.operation.sum, myCompany.currency.code)" />
+                        <p class="text-sm text-muted">
+                          {{ op.operation.date }} {{ op.operation.time }}
+                        </p>
+                      </div>
                     </div>
-                    <div class="text-right">
-                      <p class="font-semibold text-air-primary-success">
-                        {{ formatAmountForDisplay(op.operation.sum, myCompany.currency.code) }}
-                      </p>
-                      <p class="text-sm text-muted">
-                        {{ op.operation.date }} {{ op.operation.time }}
-                      </p>
+                    <p class="mt-2 text-sm text-gray-600">
+                      {{ op.operation.description }}
+                    </p>
+                    <div v-if="op.importStatus" class="mt-2">
+                      <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
+                        {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
+                      </span>
                     </div>
-                  </div>
-                  <p class="mt-2 text-sm text-gray-600">
-                    {{ op.operation.description }}
-                  </p>
-                  <div v-if="op.importStatus" class="mt-2">
-                    <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
-                      {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
-                    </span>
                   </div>
                 </div>
               </div>
-            </div>
+            </B24Card>
 
             <!-- Расход -->
-            <div class="flex justify-between items-center mb-3 mt-6">
-              <h4 class="font-semibold text-air-primary-alert">
-                Расход
-              </h4>
-              <span class="text-lg font-semibold text-air-primary-alert">-{{ formatAmountForDisplay(sumOut, myCompany.currency.code) }}</span>
-            </div>
-            <div v-if="myCompany.out.length > 0" class="max-h-[30vh] overflow-y-auto">
-              <div class="space-y-3">
-                <div v-for="(op, index) in myCompany.out" :key="`out-${index}`" class="p-3 border border-gray-100 rounded-lg">
-                  <div class="flex justify-between">
-                    <div>
-                      <p class="font-medium">
-                        {{ op.client.name }}
-                      </p>
-                      <p class="text-sm text-muted">
-                        УНП: {{ op.client.unp || 'не указан' }}
-                      </p>
-                      <p class="text-sm text-muted">
-                        Счет: {{ formatAccountDisplay(op.client.accNumber) }}
-                      </p>
+            <B24Card>
+              <template #header>
+                <div class="flex justify-between items-center mb-3 mt-6">
+                  <h4 class="font-semibold text-air-primary-alert">
+                    Расход
+                  </h4>
+                  <span class="text-lg font-semibold text-air-primary-alert" v-html="formatAmountForDisplay(-sumOut, myCompany.currency.code)" />
+                </div>
+              </template>
+              <div v-if="myCompany.out.length > 0" class="max-h-[30vh] overflow-y-auto">
+                <div class="space-y-3">
+                  <div v-for="(op, index) in myCompany.out" :key="`out-${index}`" class="p-3 border border-gray-100 rounded-lg">
+                    <div class="flex justify-between">
+                      <div>
+                        <p class="font-medium">
+                          {{ op.client.name }}
+                        </p>
+                        <p class="text-sm text-muted">
+                          УНП: {{ op.client.unp || 'не указан' }}
+                        </p>
+                        <p class="text-sm text-muted">
+                          Счет: {{ formatAccountDisplay(op.client.accNumber) }}
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-semibold text-air-primary-alert" v-html="formatAmountForDisplay(-op.operation.sum, myCompany.currency.code)" />
+                        <p class="text-sm text-muted">
+                          {{ op.operation.date }} {{ op.operation.time }}
+                        </p>
+                      </div>
                     </div>
-                    <div class="text-right">
-                      <p class="font-semibold text-air-primary-alert">
-                        -{{ formatAmountForDisplay(op.operation.sum, myCompany.currency.code) }}
-                      </p>
-                      <p class="text-sm text-muted">
-                        {{ op.operation.date }} {{ op.operation.time }}
-                      </p>
+                    <p class="mt-2 text-sm text-gray-600">
+                      {{ op.operation.description }}
+                    </p>
+                    <div v-if="op.importStatus" class="mt-2">
+                      <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
+                        {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
+                      </span>
                     </div>
-                  </div>
-                  <p class="mt-2 text-sm text-gray-600">
-                    {{ op.operation.description }}
-                  </p>
-                  <div v-if="op.importStatus" class="mt-2">
-                    <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
-                      {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
-                    </span>
                   </div>
                 </div>
               </div>
-            </div>
+            </B24Card>
 
             <div v-if="!myCompany.in.length && !myCompany.out.length" class="text-center py-8 text-muted">
               Нет операций для отображения
@@ -257,9 +262,9 @@ const {
           <template #header>
             <div class="flex items-center gap-2">
               <SendIcon class="size-5" />
-              <h3 class="text-lg font-semibold">
+              <h2 class="text-2xl font-semibold">
                 Импорт в Bitrix24
-              </h3>
+              </h2>
             </div>
           </template>
           <div class="space-y-4">
@@ -308,7 +313,7 @@ const {
               </h4>
               <ul class="space-y-1 text-sm">
                 <li>• Каждая операция будет создана как элемент списка «Платежи»</li>
-                <li>• Проверка дубликатов по уникальному хэшу (поле HASH_ID)</li>
+                <li>• Проверка дубликатов по уникальному хэшу</li>
                 <li>• Приходы и расходы разделены по полю «Направление»</li>
                 <li>• Сохраняются все реквизиты: счет, УНП, назначение платежа</li>
               </ul>

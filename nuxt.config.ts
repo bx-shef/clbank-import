@@ -34,33 +34,19 @@ export default defineNuxtConfig({
       siteUrl: prodUrl,
       /**
        * Bitrix24 universal list configuration.
-       * Values below are fallback defaults and must be overridden per Bitrix24 account
-       * via NUXT_PUBLIC_B24_* environment variables (see .env.example).
-       * Field IDs are numeric property IDs (e.g. "175" — prefix "PROPERTY_" is added at runtime).
+       * Only identifiers of the list itself and static reference element IDs
+       * are kept here. Property IDs and list-value IDs are resolved at runtime
+       * via `lists.field.get` using XML_ID (symbolic codes).
+       *
+       * Override per Bitrix24 account via NUXT_PUBLIC_B24_* env variables
+       * (see .env.example).
        */
       b24: {
         iblockTypeId: 'lists',
         iblockId: 31,
-        field: {
-          paymentType: '173',
-          amount: '175',
-          currency: '207',
-          operationDate: '209',
-          docNumber: '163',
-          ourAcc: '185',
-          clientAcc: '189',
-          clientName: '211',
-          clientUnp: '213',
-          description: '215',
-          hashId: '217',
-          category: '169',
-          method: '171',
-          docDateTime: '165'
-        },
-        paymentCategoryIn: '127',
-        paymentCategoryOut: '129',
-        paymentTypeFull: '143',
-        paymentMethodNonCash: '137'
+        myCompanyId: 10216,
+        articleIdIn: 10214,
+        articleIdOut: 10215
       }
     }
   },

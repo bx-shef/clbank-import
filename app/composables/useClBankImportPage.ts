@@ -15,6 +15,7 @@ import {
 } from '~/constants/clbank'
 import { useB24 } from '~/composables/useB24'
 import { useB24ListConfig } from '~/composables/useB24ListConfig'
+import { useB24ListSchema } from '~/composables/useB24ListSchema'
 import { Parser, ParserTxtFile } from '~/composables/useParser'
 import type {
   BankOperation,
@@ -27,6 +28,34 @@ import type {
 import { getErrorMessage } from '~/utils/error'
 
 type CurrencyCode = keyof typeof CURRENCY_MAP
+
+const REQUIRED_FIELD_CODES = [
+  'STATUS',
+  'STATUS_PROCESS',
+  'DOC_NUM',
+  'DOC_DATE_TIME',
+  'CATEGORY',
+  'METHOD',
+  'TYPE',
+  'SUM',
+  'COMMENT',
+  'MY_COMPANY_LST_RQ',
+  'MY_COMPANY_BANK_ACCNUM',
+  'CLIENT_BANK_ACCNUM',
+  'ARTICLE',
+  'BASE_SUM',
+  'SYS_INFO'
+] as const
+
+const REQUIRED_ENUMS: Record<string, readonly string[]> = {
+  CATEGORY: ['IN', 'OUT'],
+  TYPE: ['FULLPAY'],
+  METHOD: ['CASHLESS'],
+  STATUS: ['PAID'],
+  STATUS_PROCESS: ['NEW']
+}
+
+const BYN_CURRENCY_CODE = 'BYN'
 
 function parseAmount(value: string | undefined): number {
   if (!value) {
@@ -55,6 +84,7 @@ export const useClBankImportPage = () => {
   const toast = useToast()
   const b24Instance = useB24()
   const listConfig = useB24ListConfig()
+  const schema = useB24ListSchema()
   const isUseB24 = computed(() => b24Instance.isInit())
 
   const file = ref<File | null>(null)
@@ -239,6 +269,8 @@ export const useClBankImportPage = () => {
       importStatus: null
     }
 
+    console.log('row', row, operation)
+
     const debit = parseAmount(row.Db) || parseAmount(row.DebQ) || parseAmount(row.Deb)
     const credit = parseAmount(row.Credit) || parseAmount(row.CreQ) || parseAmount(row.Cre)
 
@@ -376,6 +408,24 @@ export const useClBankImportPage = () => {
     importStatus.errors = []
 
     try {
+      try {
+        await schema.load(b24, {
+          iblockTypeId: listConfig.iblockTypeId,
+          iblockId: listConfig.iblockId
+        })
+      } catch (error: unknown) {
+        const message = getErrorMessage(error)
+        errorContainer.value = `Не удалось загрузить схему списка Bitrix24: ${message}`
+        throw error
+      }
+
+      const missing = schema.validateCodes(REQUIRED_FIELD_CODES, REQUIRED_ENUMS)
+      if (missing.length > 0) {
+        const message = `В списке Bitrix24 не хватает полей/значений: ${missing.join(', ')}`
+        errorContainer.value = message
+        throw new Error(message)
+      }
+
       const allOperations = [...myCompany.in, ...myCompany.out]
       for (const operation of allOperations) {
         try {
@@ -429,8 +479,7 @@ export const useClBankImportPage = () => {
       params: {
         IBLOCK_TYPE_ID: listConfig.iblockTypeId,
         IBLOCK_ID: listConfig.iblockId,
-        ELEMENT_CODE: rowHash,
-        filter: { [listConfig.fieldMap.hashId]: rowHash }
+        ELEMENT_CODE: rowHash
       },
       requestId: `lists.element.get:${rowHash}`
     })
@@ -445,34 +494,13 @@ export const useClBankImportPage = () => {
       throw new Error('Эта запись была ранее импортирована')
     }
 
-    let docDateTime: string | null = null
-    if (row.document.date && row.document.time) {
-      docDateTime = [row.document.date, row.document.time].join(' ')
-    }
-    const { fieldMap } = listConfig
     const createResponse = await b24.actions.v2.call.make({
       method: 'lists.element.add',
       params: {
         IBLOCK_TYPE_ID: listConfig.iblockTypeId,
         IBLOCK_ID: listConfig.iblockId,
         ELEMENT_CODE: rowHash,
-        FIELDS: {
-          NAME: `${row.operation.isIn ? 'Приход от' : 'Расход на'} ${row.client.name}`,
-          [fieldMap.hashId]: rowHash,
-          [fieldMap.category]: row.operation.isIn ? listConfig.paymentCategoryIn : listConfig.paymentCategoryOut,
-          [fieldMap.paymentType]: listConfig.paymentTypeFull,
-          [fieldMap.amount]: `${row.operation.sum}|${myCompany.currency.code}`,
-          [fieldMap.currency]: myCompany.currency.code,
-          [fieldMap.operationDate]: row.operation.date,
-          [fieldMap.docDateTime]: docDateTime,
-          [fieldMap.docNumber]: row.document.num,
-          [fieldMap.ourAcc]: myCompany.accNumber ?? '',
-          [fieldMap.clientAcc]: row.client.accNumber,
-          [fieldMap.clientName]: row.client.name,
-          [fieldMap.clientUnp]: row.client.unp,
-          [fieldMap.description]: row.operation.description,
-          [fieldMap.method]: listConfig.paymentMethodNonCash
-        }
+        FIELDS: buildElementFields(row)
       },
       requestId: `lists.element.add:${rowHash}`
     })
@@ -484,6 +512,33 @@ export const useClBankImportPage = () => {
     row.importStatus = {
       isSuccess: true,
       result: createResponse.getData()?.result
+    }
+  }
+
+  function buildElementFields(row: BankOperation): Record<string, unknown> {
+    const f = schema.getFieldId
+    const e = schema.getEnumId
+    const isIn = row.operation.isIn
+    const currencyCode = myCompany.currency.code
+    const docDateTime = [row.document.date, row.document.time].filter(Boolean).join(' ')
+
+    return {
+      NAME: `${isIn ? 'Приход от' : 'Расход на'} ${row.client.name} за ${docDateTime}`.trim(),
+      DETAIL_TEXT: `Назначение: ${row.operation.description}\n\n${row.client.name} УНП: ${row.client.unp}`,
+      [f('STATUS')]: e('STATUS', 'PAID'),
+      [f('STATUS_PROCESS')]: e('STATUS_PROCESS', 'PROCESS'),
+      [f('DOC_NUM')]: row.document.num,
+      [f('DOC_DATE_TIME')]: docDateTime,
+      [f('CATEGORY')]: e('CATEGORY', isIn ? 'IN' : 'OUT'),
+      [f('METHOD')]: e('METHOD', 'CASHLESS'),
+      [f('TYPE')]: e('TYPE', 'FULLPAY'),
+      [f('SUM')]: `${row.operation.sum}|${currencyCode}`,
+      [f('BASE_SUM')]: currencyCode === BYN_CURRENCY_CODE ? row.operation.sum : 0,
+      [f('MY_COMPANY_LST_RQ')]: listConfig.myCompanyId,
+      [f('MY_COMPANY_BANK_ACCNUM')]: myCompany.accNumber ?? '',
+      [f('CLIENT_BANK_ACCNUM')]: row.client.accNumber,
+      [f('ARTICLE')]: isIn ? listConfig.articleIdIn : listConfig.articleIdOut,
+      [f('SYS_INFO')]: `IMPORT_CLIENT_BANK_FROM_FILE`
     }
   }
 
