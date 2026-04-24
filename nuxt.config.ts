@@ -1,11 +1,3 @@
-const pagesService = [
-  '/api/customers',
-  '/api/mails',
-  '/api/members',
-  '/api/notifications',
-  '/404.html'
-]
-
 const extraAllowedHosts = (process?.env.NUXT_ALLOWED_HOSTS?.split(',').map((s: string) => s.trim()).filter(Boolean)) ?? []
 
 const prodUrl = process?.env.NUXT_PUBLIC_SITE_URL ?? ''
@@ -43,7 +35,7 @@ export default defineNuxtConfig({
        */
       b24: {
         iblockTypeId: 'lists',
-        iblockId: 31,
+        iblockId: 21,
         myCompanyId: 10216,
         articleIdIn: 10214,
         articleIdOut: 10215
@@ -61,9 +53,7 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
-      routes: [
-        ...pagesService
-      ],
+      routes: ['/404.html'],
       crawlLinks: true,
       autoSubfolderIndex: false
     }

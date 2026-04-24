@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-v-html -->
 <script setup lang="ts">
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
 import DocumentIcon from '@bitrix24/b24icons-vue/main/DocumentIcon'
@@ -74,12 +73,12 @@ const {
                 color="air-primary"
                 :disabled="isParsing || isImporting"
               >
-                <input
+                <B24Input
                   type="file"
                   accept=".txt,.csv"
                   class="hidden"
                   @change="onFileSelect"
-                >
+                />
               </B24Button>
 
               <div v-if="file" class="flex items-center gap-2">
@@ -92,12 +91,6 @@ const {
             <div v-if="isParsing" class="flex items-center gap-2">
               <div class="size-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
               <span>Идет обработка файла...</span>
-            </div>
-
-            <div v-if="errorContainer" class="p-3 bg-air-primary-alert/10 border border-air-primary-alert rounded-md">
-              <p class="text-sm text-air-primary-alert">
-                {{ errorContainer }}
-              </p>
             </div>
           </div>
         </B24Card>
@@ -329,16 +322,22 @@ const {
             description="Выберите файл выгрузки из клиент-банка для начала импорта."
             color="air-primary"
           />
+          <B24Alert
+            v-else-if="errorContainer"
+            title="Ошибка при обработке файла"
+            :description="errorContainer"
+            color="air-primary-alert"
+          />
 
           <B24Alert
-            v-if="hasFile && !hasOperations && !isParsing"
+            v-else-if="hasFile && !hasOperations && !isParsing"
             title="Файл загружен"
-            description="Файл загружен и автоматически обработан. Проверьте найденные операции."
+            description="Файл загружен и автоматически обработан. Операции не найдены!"
             color="air-primary-warning"
           />
 
           <B24Alert
-            v-if="hasOperations && !isImporting && importStatus.processed === 0"
+            v-else-if="hasOperations && !isImporting && importStatus.processed === 0"
             title="Данные готовы к импорту"
             description="Проверьте операции и нажмите 'Импортировать операции' для загрузки в Bitrix24."
             color="air-primary-success"
