@@ -34,31 +34,15 @@ import type {
   ImportStatus
 } from '~/types/bank-statement'
 import { getErrorMessage } from '~/utils/error'
+import {
+  hasRecords,
+  parseAmount,
+  parseIntSafe,
+  stripBom
+} from '~/utils/index'
+import { parseBankCsv } from '~/utils/csv'
 
 type CurrencyCode = keyof typeof CURRENCY_MAP
-
-function parseAmount(value: string | undefined): number {
-  if (!value) {
-    return 0
-  }
-
-  const normalized = value.replace(',', '.')
-  const parsed = Number.parseFloat(normalized)
-  return Number.isFinite(parsed) ? parsed : 0
-}
-
-function parseIntSafe(value: string | undefined): number {
-  if (!value) {
-    return 0
-  }
-
-  const parsed = Number.parseInt(value, 10)
-  return Number.isFinite(parsed) ? parsed : 0
-}
-
-function hasRecords(result: unknown): boolean {
-  return !!result && typeof result === 'object' && Object.keys(result as Record<string, unknown>).length > 0
-}
 
 export const useClBankImportPage = () => {
   const toast = useToast()
@@ -147,10 +131,10 @@ export const useClBankImportPage = () => {
 
     try {
       const arrayBuffer = await file.value.arrayBuffer()
-      const content = await decodeFile(arrayBuffer)
+      const content = stripBom((await decodeFile(arrayBuffer)).trimStart())
 
       if (content.startsWith(FILE_SIGNATURE_1C)) {
-        // Оставляем текущее поведение: формат распознается, но пока не маппится в операции.
+        // Формат распознаётся, но маппинг операций пока не реализован.
         new Parser(content, 'UTF-8')
         toast.add({
           title: 'Формат 1C пока не поддерживается',
@@ -166,25 +150,48 @@ export const useClBankImportPage = () => {
         const parsedData = parser.getResult() as ClBankParsedResult
         processMapping(parsedData)
 
+        const opCount = myCompany.in.length + myCompany.out.length
+        if (opCount === 0) {
+          toast.add({
+            title: 'Файл обработан',
+            description: 'Операции в файле не найдены. Проверьте наличие проводок в разделе выписки.',
+            color: 'air-primary-warning',
+            icon: CircleCheckIcon
+          })
+        } else {
+          toast.add({
+            title: 'Файл успешно обработан',
+            description: `Найдено ${opCount} операций`,
+            color: 'air-primary-success',
+            icon: CircleCheckIcon
+          })
+        }
+        return
+      }
+
+      // Формат не определён по сигнатуре — пробуем разобрать как CSV.
+      // Используем уже раскодированный content (win1251 → utf-8), чтобы корректно
+      // обрабатывать файлы в обеих кодировках.
+      const csvOutcome = parseBankCsv(content)
+      if (csvOutcome.kind === 'unknown_format') {
+        throw new Error(
+          'Неизвестный формат файла. Ожидается выгрузка клиент-банка (строка начинается с ***** ^Type=), формат 1C или CSV с колонками: дата, сумма, описание, контрагент.'
+        )
+      }
+      if (csvOutcome.kind === 'header_only') {
         toast.add({
-          title: 'Файл успешно обработан',
-          description: `Найдено ${myCompany.in.length + myCompany.out.length} операций`,
-          color: 'air-primary-success',
+          title: 'Файл обработан',
+          description: 'Операции в файле не найдены (обнаружена только строка заголовка).',
+          color: 'air-primary-warning',
           icon: CircleCheckIcon
         })
         return
       }
 
-      const text = new TextDecoder('utf-8').decode(arrayBuffer)
-      const parsedCsv = parseCSV(text)
-      if (parsedCsv.length === 0) {
-        throw new Error('Неизвестный формат файла')
-      }
-
-      convertCSVToOperations(parsedCsv)
+      convertCSVToOperations(csvOutcome.rows)
       toast.add({
         title: 'CSV файл обработан',
-        description: `Найдено ${parsedCsv.length} записей`,
+        description: `Найдено ${csvOutcome.rows.length} записей`,
         color: 'air-primary-success',
         icon: CircleCheckIcon
       })
@@ -249,8 +256,6 @@ export const useClBankImportPage = () => {
       importStatus: null
     }
 
-    console.log('row', row, operation)
-
     const debit = parseAmount(row.Db) || parseAmount(row.DebQ) || parseAmount(row.Deb)
     const credit = parseAmount(row.Credit) || parseAmount(row.CreQ) || parseAmount(row.Cre)
 
@@ -264,44 +269,6 @@ export const useClBankImportPage = () => {
     operation.operation.isIn = true
     operation.operation.sum = credit
     myCompany.in.push(operation)
-  }
-
-  function parseCSV(text: string): CsvRow[] {
-    const lines = text.split('\n').filter(line => line.trim() !== '')
-    if (lines.length === 0) {
-      return []
-    }
-
-    const firstLine = lines[0] ?? ''
-    let delimiter = ','
-    if (firstLine.includes(';')) {
-      delimiter = ';'
-    } else if (firstLine.includes('\t')) {
-      delimiter = '\t'
-    }
-
-    const result: CsvRow[] = []
-    for (let index = 0; index < lines.length; index++) {
-      const line = lines[index] ?? ''
-      const parts = line.split(delimiter).map(part => part.trim().replace(/^"|"$/g, ''))
-
-      const date = parts[0] ?? ''
-      const amount = parseAmount(parts[1])
-      const description = parts[2] ?? ''
-      const contractor = parts[3] ?? ''
-
-      if (date || amount || description || contractor) {
-        result.push({
-          id: index + 1,
-          date,
-          amount,
-          description,
-          contractor
-        })
-      }
-    }
-
-    return result
   }
 
   function convertCSVToOperations(csvData: CsvRow[]): void {

@@ -53,6 +53,11 @@ export interface CsvRow {
   contractor: string
 }
 
+export type CsvParseOutcome
+  = | { kind: 'ok', rows: CsvRow[] }
+    | { kind: 'header_only' }
+    | { kind: 'unknown_format' }
+
 export interface ImportRowStatus {
   isSuccess: boolean
   message?: string
