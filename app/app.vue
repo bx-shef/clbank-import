@@ -3,7 +3,6 @@ import type { Result } from '@bitrix24/b24jssdk'
 import type { ToasterProps } from '@bitrix24/b24ui-nuxt'
 import { ref, provide, readonly } from 'vue'
 import * as locales from '@bitrix24/b24ui-nuxt/locale'
-import { sleepAction } from './utils'
 import CloudErrorIcon from '@bitrix24/b24icons-vue/main/CloudErrorIcon'
 
 const config = useRuntimeConfig()
@@ -54,9 +53,6 @@ onMounted(async () => {
       icon: CloudErrorIcon
     })
   }
-
-  // Used to display the connection loading indicator
-  await sleepAction(1000)
   isLoading.value = false
 })
 </script>
