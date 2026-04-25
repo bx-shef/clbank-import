@@ -20,7 +20,6 @@ const {
   sumIn,
   sumOut,
   totalOperations,
-  footerYear,
   onFileSelect,
   importToBitrix24,
   resetForm
@@ -63,7 +62,7 @@ const {
           </template>
           <div class="space-y-4">
             <p class="text-muted">
-              Загрузите файл выгрузки из клиент-банка (формат ***** ^Type=) или CSV файл.
+              Загрузите файл выгрузки из клиент-банка (формат ***** ^Type=)
             </p>
             <div class="flex items-center gap-4">
               <B24Button
@@ -75,7 +74,7 @@ const {
               >
                 <B24Input
                   type="file"
-                  accept=".txt,.csv"
+                  accept=".txt"
                   class="hidden"
                   @change="onFileSelect"
                 />
@@ -348,11 +347,6 @@ const {
 
     <template #footer>
       <B24Footer>
-        <template #left>
-          <p class="text-sm">
-            © {{ footerYear }} Битрикс24
-          </p>
-        </template>
         <template #right>
           <p v-if="hasOperations" class="text-sm">
             Операций: {{ totalOperations }}

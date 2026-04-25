@@ -32,17 +32,14 @@ useHead({
   }
 })
 
-const title = 'Nuxt Dashboard Template'
-const description = 'A professional dashboard template built with Bitrix24 UI, featuring multiple pages, data visualization, and comprehensive management capabilities for creating powerful admin interfaces.'
+const title = 'Импорт банковских выписок'
+const description = 'Загружаем выписку в Битрикс24.'
 
 useSeoMeta({
   title,
   description,
   ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://bitrix24.github.io/b24ui/assets/templates/nuxt/dashboard-light.png',
-  twitterImage: 'https://bitrix24.github.io/b24ui/assets/templates/nuxt/dashboard-light.png',
-  twitterCard: 'summary_large_image'
+  ogDescription: description
 })
 
 provide('isLoading', readonly(isLoading))

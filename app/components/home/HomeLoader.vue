@@ -1,10 +1,9 @@
+<script setup lang="ts">
+import LoaderClockIcon from '@bitrix24/b24icons-vue/animated/LoaderClockIcon'
+</script>
+
 <template>
-  <!-- Simple loading indicator without sidebar -->
-  <div class="flex items-center justify-center h-screen">
-    <div class="text-center">
-      <div class="size-12 border-4 border-air-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <B24Skeleton accent="default" class="h-5 w-32 mx-auto mb-2" />
-      <B24Skeleton accent="less" class="h-3 w-48 mx-auto" />
-    </div>
+  <div class="flex flex-col items-center justify-center h-screen">
+    <LoaderClockIcon class="size-38 text-(--ui-color-g-content-grey-2) dark:text-(--ui-color-g-content-grey-3)" />
   </div>
 </template>

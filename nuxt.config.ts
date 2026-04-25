@@ -68,7 +68,14 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [
         '@bitrix24/b24icons-vue/main/CloudErrorIcon',
-        '@bitrix24/b24jssdk'
+        '@bitrix24/b24jssdk',
+        '@bitrix24/b24icons-vue/outline/UploadIcon',
+        '@bitrix24/b24icons-vue/main/DocumentIcon',
+        '@bitrix24/b24icons-vue/outline/SendIcon',
+        '@bitrix24/b24icons-vue/outline/CircleCheckIcon',
+        'buffer',
+        'crypto-js/md5',
+        'iconv-lite'
       ]
     }
   },

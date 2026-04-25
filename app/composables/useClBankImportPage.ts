@@ -6,9 +6,6 @@ import CircleCheckIcon from '@bitrix24/b24icons-vue/outline/CircleCheckIcon'
 import type { TypeB24 } from '@bitrix24/b24jssdk'
 import {
   CURRENCY_MAP,
-  CSV_DEFAULT_CURRENCY,
-  CSV_DOCUMENT_TITLE,
-  CSV_IMPORT_TITLE,
   DEFAULT_CURRENCY,
   FILE_SIGNATURE_1C,
   FILE_SIGNATURE_CLIENT_BANK
@@ -30,7 +27,6 @@ import type {
   ClBankItemRow,
   ClBankParsedResult,
   CompanyStatement,
-  CsvRow,
   ImportStatus
 } from '~/types/bank-statement'
 import { getErrorMessage } from '~/utils/error'
@@ -40,7 +36,6 @@ import {
   parseIntSafe,
   stripBom
 } from '~/utils/index'
-import { parseBankCsv } from '~/utils/csv'
 
 type CurrencyCode = keyof typeof CURRENCY_MAP
 
@@ -168,33 +163,7 @@ export const useClBankImportPage = () => {
         }
         return
       }
-
-      // Формат не определён по сигнатуре — пробуем разобрать как CSV.
-      // Используем уже раскодированный content (win1251 → utf-8), чтобы корректно
-      // обрабатывать файлы в обеих кодировках.
-      const csvOutcome = parseBankCsv(content)
-      if (csvOutcome.kind === 'unknown_format') {
-        throw new Error(
-          'Неизвестный формат файла. Ожидается выгрузка клиент-банка (строка начинается с ***** ^Type=), формат 1C или CSV с колонками: дата, сумма, описание, контрагент.'
-        )
-      }
-      if (csvOutcome.kind === 'header_only') {
-        toast.add({
-          title: 'Файл обработан',
-          description: 'Операции в файле не найдены (обнаружена только строка заголовка).',
-          color: 'air-primary-warning',
-          icon: CircleCheckIcon
-        })
-        return
-      }
-
-      convertCSVToOperations(csvOutcome.rows)
-      toast.add({
-        title: 'CSV файл обработан',
-        description: `Найдено ${csvOutcome.rows.length} записей`,
-        color: 'air-primary-success',
-        icon: CircleCheckIcon
-      })
+      throw new Error('Формат не определён по сигнатур')
     } catch (error: unknown) {
       const message = getErrorMessage(error)
       console.error('Ошибка при обработке файла:', error)
@@ -269,44 +238,6 @@ export const useClBankImportPage = () => {
     operation.operation.isIn = true
     operation.operation.sum = credit
     myCompany.in.push(operation)
-  }
-
-  function convertCSVToOperations(csvData: CsvRow[]): void {
-    for (const item of csvData) {
-      const isIn = item.amount >= 0
-      const operation: BankOperation = {
-        document: {
-          num: String(item.id),
-          date: item.date,
-          time: ''
-        },
-        operation: {
-          date: item.date,
-          time: '',
-          description: item.description,
-          sum: Math.abs(item.amount),
-          isIn
-        },
-        client: {
-          name: item.contractor,
-          unn: '',
-          unp: '',
-          accNumber: ''
-        },
-        importStatus: null
-      }
-
-      if (isIn) {
-        myCompany.in.push(operation)
-      } else {
-        myCompany.out.push(operation)
-      }
-    }
-
-    myCompany.title = CSV_IMPORT_TITLE
-    myCompany.document.title = CSV_DOCUMENT_TITLE
-    myCompany.currency.code = CSV_DEFAULT_CURRENCY
-    myCompany.currency.number = CURRENCY_MAP.RUB
   }
 
   function clearCompanyData(): void {

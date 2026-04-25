@@ -235,7 +235,7 @@ export class Parser {
     for (const key of GeneralSection.fields()) {
       const regex = new RegExp(`^${key}=(.+)`, 'um')
       const match = regex.exec(content)
-      result[key] = match ? match[1].trim() : null
+      result[key] = match ? (match[1] || '').trim() : null
     }
     return new GeneralSection(result)
   }
@@ -245,7 +245,7 @@ export class Parser {
     for (const key of FilterSection.fields()) {
       const regex = new RegExp(`^${key}=(.+)`, 'um')
       const match = regex.exec(content)
-      result[key] = match ? match[1].trim() : null
+      result[key] = match ? (match[1] || '').trim() : null
     }
 
     return new FilterSection(result)
@@ -259,7 +259,7 @@ export class Parser {
       const part = match[1] || ''
       for (const line of part.split(/\r?\n/).filter(Boolean)) {
         const [key, val] = line.split('=').map(str => str.trim())
-        result[key] = val
+        result[key!] = val
       }
     }
     return new RemainingsSection(result)
@@ -274,7 +274,7 @@ export class Parser {
       const part = match[0]
       for (const line of part.split(/\r?\n/).filter(Boolean)) {
         const [key, val] = line.split('=').map(str => str.trim())
-        doc[key] = val
+        doc[key!] = val
       }
       const type = doc['СекцияДокумент']
       delete doc['СекцияДокумент']
@@ -328,20 +328,20 @@ export class ParserTxtFile {
           case '*':
             const subMatches = line.split('^').filter(Boolean)
             if (subMatches.length >= 2) {
-              let val = subMatches[1].split('=')
+              let val = (subMatches[1] || '').split('=')
               if (val.length >= 2) result.GENERAL['TYPE'] = val[1]
 
               if (subMatches.length >= 4) {
-                val = subMatches[3].split('=')
+                val = (subMatches[3] || '').split('=')
                 if (val.length >= 2) result.GENERAL['ACC'] = val[1]
               }
 
               if (subMatches.length >= 5) {
-                val = subMatches[4].split('-')
+                val = (subMatches[4] || '').split('-')
                 if (val.length < 2 && subMatches.length >= 7) {
-                  val = subMatches[6].split('-')
+                  val = (subMatches[6] || '').split('-')
                 }
-                if (val.length >= 2) result.GENERAL['TITLE'] = val[1].trim()
+                if (val.length >= 2) result.GENERAL['TITLE'] = (val[1] || '').trim()
               }
             }
             break
@@ -364,20 +364,20 @@ export class ParserTxtFile {
             let curSubSection = ''
             let key2: string | false = false
 
-            if (headerKeys.includes(key)) {
+            if (headerKeys.includes(key!)) {
               curSubSection = 'header'
               if (key === 'CrIn' || key === 'InCre') {
                 key2 = 'RestIn'
               }
-            } else if (footerKeys.includes(key)) {
+            } else if (footerKeys.includes(key!)) {
               curSubSection = 'footer'
               if (key === 'CrOut' || key === 'OutCre') {
                 key2 = 'RestOut'
               }
-            } else if (itemKeys.includes(key)) {
+            } else if (itemKeys.includes(key!)) {
               curSubSection = 'items'
               if (key === 'DocDate' || key === 'DateIn' || key === 'DateOut') {
-                value.replace('/', '.')
+                value?.replace('/', '.')
                 if (key === 'DocDate') {
                   i += 1
                   key2 = 'OpDate'
@@ -398,21 +398,21 @@ export class ParserTxtFile {
             }
 
             if (curSubSection === 'items') {
-              if (!result[curSection][curSubSection]) {
-                result[curSection][curSubSection] = []
+              if (!(result as Record<string, any>)[curSection][curSubSection]) {
+                (result as Record<string, any>)[curSection][curSubSection] = []
               }
-              if (!result[curSection][curSubSection][i]) {
-                result[curSection][curSubSection][i] = {}
+              if (!(result as Record<string, any>)[curSection][curSubSection][i]) {
+                (result as Record<string, any>)[curSection][curSubSection][i] = {}
               }
-              result[curSection][curSubSection][i][key] = value
+              (result as Record<string, any>)[curSection][curSubSection][i][key!] = value
               if (key2 !== false) {
-                result[curSection][curSubSection][i][key2] = value
+                (result as Record<string, any>)[curSection][curSubSection][i][key2] = value
               }
             } else {
-              if (!result[curSection][curSubSection]) {
-                result[curSection][curSubSection] = {}
+              if (!(result as Record<string, any>)[curSection][curSubSection]) {
+                (result as Record<string, any>)[curSection][curSubSection] = {}
               }
-              result[curSection][curSubSection][key] = value
+              (result as Record<string, any>)[curSection][curSubSection][key!] = value
             }
             break
           case '#':

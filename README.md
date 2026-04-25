@@ -42,14 +42,6 @@ A web application that imports bank payment statements from client-bank exports 
 | **1CClientBankExchange** | File starts with `1CClientBankExchange` | ⚠️ Recognized, import mapping in progress |
 | **CSV** | `.csv` file with `,` `;` or `\t` delimiters | ✅ Fallback format |
 
-### CSV file structure
-
-Columns are read left to right (header row is optional):
-
-```
-Date | Amount | Payment description | Counterparty
-```
-
 ## Prerequisites
 
 - **Node.js** >= 20
@@ -288,9 +280,9 @@ Once the app is set up and registered in Bitrix24, the UI shows four sections th
 
 1. Open the app inside Bitrix24 (side panel or embedded iframe)
 2. Click **"Select file"**
-3. Choose a client-bank export file (`.txt`) or a CSV file
+3. Choose a client-bank export file (`.txt`)
 4. The file is processed automatically:
-   - Format is detected (client-bank / 1C / CSV)
+   - Format is detected (client-bank / 1C)
    - Encoding is decoded (win1251 → utf-8)
    - Operations are parsed
 
@@ -393,9 +385,6 @@ File (.txt / .csv)
 | `utils/index` | `parseAmount`, `parseIntSafe` | Parsing numbers from raw bank strings |
 | `utils/index` | `stripBom` | Removes UTF-8 BOM character from file content |
 | `utils/index` | `hasRecords` | Checks that an object has at least one key |
-| `utils/csv` | `parseBankCsv` | Detects and parses CSV bank statements |
-| `utils/csv` | `looksLikeBankDate`, `looksLikeAmountCell` | Heuristic validators for CSV columns |
-| `utils/csv` | `isProbablyCsvHeaderRow` | Detects header rows to skip during parsing |
 
 ### Supported currencies
 
@@ -437,7 +426,7 @@ This is not an error — it is duplicate protection. A record with the same acco
 
 ### 1C format not supported
 
-Files starting with `1CClientBankExchange` are detected but operation mapping is not yet implemented. Use the client-bank export format (`***** ^Type=`) or CSV instead.
+Files starting with `1CClientBankExchange` are detected but operation mapping is not yet implemented. Use the client-bank export format (`***** ^Type=`).
 
 ---
 
