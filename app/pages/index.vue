@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { BYTES_PER_KB } from '~/constants/clbank'
+import { useBankStatementPresentation } from '~/composables/useBankStatementPresentation'
+import { useClBankImportPage } from '~/composables/useClBankImportPage'
 import UploadIcon from '@bitrix24/b24icons-vue/outline/UploadIcon'
 import DocumentIcon from '@bitrix24/b24icons-vue/main/DocumentIcon'
 import SendIcon from '@bitrix24/b24icons-vue/outline/SendIcon'
 import CircleCheckIcon from '@bitrix24/b24icons-vue/outline/CircleCheckIcon'
-import { BYTES_PER_KB } from '~/constants/clbank'
-import { useBankStatementPresentation } from '~/composables/useBankStatementPresentation'
-import { useClBankImportPage } from '~/composables/useClBankImportPage'
+import TrendUpIcon from '@bitrix24/b24icons-vue/outline/TrendUpIcon'
+import TrendDownIcon from '@bitrix24/b24icons-vue/outline/TrendDownIcon'
 
 const {
   file,
@@ -33,14 +35,13 @@ const {
 </script>
 
 <template>
-  <B24DashboardPanel id="import" :b24ui="{ body: 'p-4 sm:pt-4 scrollbar-transparent' }">
+  <B24DashboardPanel id="import" :b24ui="{ body: 'p-4 sm:pt-4 sm:pe-2 scrollbar-transparent' }">
     <template #header>
       <B24DashboardNavbar title="Импорт банковских выписок">
         <template #right>
           <B24Button
             size="sm"
             label="Сбросить"
-            color="air-tertiary"
             :disabled="!hasFile && !hasOperations"
             @click="resetForm"
           />
@@ -68,9 +69,9 @@ const {
               <B24Button
                 as="label"
                 :icon="UploadIcon"
-                label="Выбрать файл"
                 color="air-primary"
                 :disabled="isParsing || isImporting"
+                :b24ui="{ baseLine: 'ps-3' }"
               >
                 <B24Input
                   type="file"
@@ -143,51 +144,50 @@ const {
         </B24Card>
 
         <!-- Шаг 3: Операции -->
-        <B24Card v-if="hasOperations">
-          <template #header>
-            <div class="flex items-center gap-2">
-              <DocumentIcon class="size-5" />
-              <h2 class="text-2xl font-semibold">
-                Операции по счету
-              </h2>
-            </div>
-          </template>
+        <div v-if="hasOperations" class="flex flex-col gap-4">
+          <div class="flex flex-row items-center gap-0.5 text-label">
+            <DocumentIcon class="size-5" />
+            <ProseH2 class="mb-1">
+              Операции по счету
+            </ProseH2>
+          </div>
           <div class="space-y-6">
             <!-- Приход -->
-            <B24Card>
+            <B24Card variant="outline-success">
               <template #header>
-                <div class="flex justify-between items-center mb-3">
-                  <h4 class="font-semibold text-air-primary-success">
+                <div class="mt-0.5 flex justify-start items-center gap-3 ">
+                  <TrendUpIcon class="size-6" />
+                  <ProseH4 class="mb-0 text-(--ui-color-design-outline-success-content)">
                     Приход
-                  </h4>
-                  <span class="text-lg font-semibold text-air-primary-success" v-html="formatAmountForDisplay(sumIn, myCompany.currency.code)" />
+                  </ProseH4>
+                  <span class="text-lg mt-1" v-html="formatAmountForDisplay(sumIn, myCompany.currency.code)" />
                 </div>
               </template>
-              <div v-if="myCompany.in.length > 0" class="max-h-[30vh] overflow-y-auto">
+              <div v-if="myCompany.in.length > 0" class="max-h-[30vh] overflow-y-auto scrollbar-thin scrollbar-transparent">
                 <div class="space-y-3">
                   <div v-for="(op, index) in myCompany.in" :key="`in-${index}`" class="p-3 border border-gray-100 rounded-lg">
                     <div class="flex justify-between">
                       <div>
-                        <p class="font-medium">
+                        <ProseH6 class="mb-1">
                           {{ op.client.name }}
-                        </p>
-                        <p class="text-sm text-muted">
+                        </ProseH6>
+                        <ProseP small accent="less" class="mb-0">
                           УНП: {{ op.client.unp || 'не указан' }}
-                        </p>
-                        <p class="text-sm text-muted">
+                        </ProseP>
+                        <ProseP small accent="less" class="mb-0">
                           Счет: {{ formatAccountDisplay(op.client.accNumber) }}
-                        </p>
+                        </ProseP>
                       </div>
                       <div class="text-right">
-                        <p class="font-semibold text-air-primary-success" v-html="formatAmountForDisplay(op.operation.sum, myCompany.currency.code)" />
-                        <p class="text-sm text-muted">
+                        <p class="font-semibold" v-html="formatAmountForDisplay(op.operation.sum, myCompany.currency.code)" />
+                        <ProseP small accent="less" class="mb-0">
                           {{ op.operation.date }} {{ op.operation.time }}
-                        </p>
+                        </ProseP>
                       </div>
                     </div>
-                    <p class="mt-2 text-sm text-gray-600">
+                    <ProseP small class="mb-0 mt-2">
                       {{ op.operation.description }}
-                    </p>
+                    </ProseP>
                     <div v-if="op.importStatus" class="mt-2">
                       <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
                         {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
@@ -199,40 +199,41 @@ const {
             </B24Card>
 
             <!-- Расход -->
-            <B24Card>
+            <B24Card variant="outline-alert">
               <template #header>
-                <div class="flex justify-between items-center mb-3 mt-6">
-                  <h4 class="font-semibold text-air-primary-alert">
+                <div class="mt-0.5 flex justify-start items-center gap-3 ">
+                  <TrendDownIcon class="size-6" />
+                  <ProseH4 class="mb-0 text-(--ui-color-design-outline-alert-content)">
                     Расход
-                  </h4>
-                  <span class="text-lg font-semibold text-air-primary-alert" v-html="formatAmountForDisplay(-sumOut, myCompany.currency.code)" />
+                  </ProseH4>
+                  <span class="text-lg mt-1" v-html="formatAmountForDisplay(-sumOut, myCompany.currency.code)" />
                 </div>
               </template>
-              <div v-if="myCompany.out.length > 0" class="max-h-[30vh] overflow-y-auto">
+              <div v-if="myCompany.out.length > 0" class="max-h-[30vh] overflow-y-auto scrollbar-thin scrollbar-transparent">
                 <div class="space-y-3">
                   <div v-for="(op, index) in myCompany.out" :key="`out-${index}`" class="p-3 border border-gray-100 rounded-lg">
                     <div class="flex justify-between">
                       <div>
-                        <p class="font-medium">
+                        <ProseH6 class="mb-1">
                           {{ op.client.name }}
-                        </p>
-                        <p class="text-sm text-muted">
+                        </ProseH6>
+                        <ProseP small accent="less" class="mb-0">
                           УНП: {{ op.client.unp || 'не указан' }}
-                        </p>
-                        <p class="text-sm text-muted">
+                        </ProseP>
+                        <ProseP small accent="less" class="mb-0">
                           Счет: {{ formatAccountDisplay(op.client.accNumber) }}
-                        </p>
+                        </ProseP>
                       </div>
                       <div class="text-right">
-                        <p class="font-semibold text-air-primary-alert" v-html="formatAmountForDisplay(-op.operation.sum, myCompany.currency.code)" />
-                        <p class="text-sm text-muted">
+                        <p class="font-semibold" v-html="formatAmountForDisplay(-op.operation.sum, myCompany.currency.code)" />
+                        <ProseP small accent="less" class="mb-0">
                           {{ op.operation.date }} {{ op.operation.time }}
-                        </p>
+                        </ProseP>
                       </div>
                     </div>
-                    <p class="mt-2 text-sm text-gray-600">
+                    <ProseP small class="mb-0 mt-2">
                       {{ op.operation.description }}
-                    </p>
+                    </ProseP>
                     <div v-if="op.importStatus" class="mt-2">
                       <span :class="op.importStatus.isSuccess ? 'text-air-primary-success' : 'text-air-primary-alert'" class="text-xs">
                         {{ op.importStatus.isSuccess ? 'Импортировано' : op.importStatus.message }}
@@ -247,26 +248,17 @@ const {
               Нет операций для отображения
             </div>
           </div>
-        </B24Card>
+        </div>
 
         <!-- Шаг 4: Импорт в Bitrix24 -->
-        <B24Card v-if="hasOperations">
-          <template #header>
-            <div class="flex items-center gap-2">
-              <SendIcon class="size-5" />
-              <h2 class="text-2xl font-semibold">
-                Импорт в Bitrix24
-              </h2>
-            </div>
-          </template>
+        <div v-if="hasOperations && isUseB24" class="flex flex-col gap-4">
+          <div class="flex flex-row items-center gap-0.5 text-label">
+            <SendIcon class="size-5" />
+            <ProseH2 class="mb-1">
+              Импорт в Bitrix24
+            </ProseH2>
+          </div>
           <div class="space-y-4">
-            <B24Alert
-              v-if="!isUseB24"
-              title="Bitrix24 не подключен"
-              description="Для импорта необходимо запустить приложение внутри Bitrix24"
-              color="air-primary-alert"
-            />
-
             <div class="flex items-center gap-4">
               <B24Button
                 :icon="SendIcon"
@@ -276,12 +268,10 @@ const {
                 :disabled="!hasOperations || isImporting || !isUseB24"
                 @click="importToBitrix24"
               />
-
               <div v-if="isImporting" class="flex items-center gap-2">
                 <div class="size-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 <span>Импортировано: {{ importStatus.processed }} из {{ importStatus.total }}</span>
               </div>
-
               <div v-if="importStatus.processed > 0 && !isImporting" class="flex items-center gap-2">
                 <CircleCheckIcon class="size-5 text-air-primary-success" />
                 <span>Успешно импортировано {{ importStatus.processed }} операций</span>
@@ -311,10 +301,16 @@ const {
               </ul>
             </div>
           </div>
-        </B24Card>
+        </div>
 
         <!-- Состояния -->
-        <div class="space-y-4">
+        <B24Alert
+          v-if="!isUseB24"
+          title="Bitrix24 не подключен"
+          description="Для импорта необходимо запустить приложение внутри Bitrix24"
+          color="air-primary-alert"
+        />
+        <div v-else class="space-y-4">
           <B24Alert
             v-if="!hasFile"
             title="Готов к работе"
@@ -348,9 +344,9 @@ const {
     <template #footer>
       <B24Footer>
         <template #right>
-          <p v-if="hasOperations" class="text-sm">
+          <ProseP v-if="hasOperations" small accent="less">
             Операций: {{ totalOperations }}
-          </p>
+          </ProseP>
         </template>
       </B24Footer>
     </template>
