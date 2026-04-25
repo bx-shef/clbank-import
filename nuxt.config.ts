@@ -64,6 +64,12 @@ export default defineNuxtConfig({
     server: {
       // Fix: "Blocked request. This host is not allowed" when using tunnels like ngrok
       allowedHosts: [...extraAllowedHosts]
+    },
+    optimizeDeps: {
+      include: [
+        '@bitrix24/b24icons-vue/main/CloudErrorIcon',
+        '@bitrix24/b24jssdk'
+      ]
     }
   },
 

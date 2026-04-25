@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { B24Frame, Result } from '@bitrix24/b24jssdk'
+import type { Result } from '@bitrix24/b24jssdk'
 import type { ToasterProps } from '@bitrix24/b24ui-nuxt'
 import { ref, provide, readonly } from 'vue'
 import * as locales from '@bitrix24/b24ui-nuxt/locale'
@@ -56,7 +56,6 @@ onMounted(async () => {
       color: 'air-primary-alert',
       icon: CloudErrorIcon
     })
-  } else {
   }
 
   // Used to display the connection loading indicator

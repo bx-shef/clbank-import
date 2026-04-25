@@ -1,4 +1,4 @@
-// @ts-nocheck
+/* eslint-disable */
 export class BaseComponent {
   protected data: Record<string, any> = {}
 
